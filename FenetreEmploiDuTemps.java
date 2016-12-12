@@ -2,6 +2,9 @@ package insa.projet.leboncours.ihm;
 
 import insa.projet.leboncours.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
@@ -97,7 +100,7 @@ public class FenetreEmploiDuTemps extends JFrame{
 			
 			JLabel titre = new JLabel("leboncours.fr",new ImageIcon("imagecours.png"),SwingConstants.CENTER);
 			titre.setFont(POLICE_TITRE);
-			JLabel phrase = new JLabel("Veuillez saisir vos disponibilités pour achever votre inscription");
+			JLabel phrase = new JLabel("Veuillez saisir vos disponibilités pour achever votre inscription:");
 			haut.add(titre,  BorderLayout.NORTH);
 			JLabel saut = new JLabel("              ");
 			haut.add(saut, BorderLayout.CENTER);
@@ -114,11 +117,27 @@ public class FenetreEmploiDuTemps extends JFrame{
 			mainPanel.setBorder(new EmptyBorder(10,10,10,10));
 			
 			this.pack();
-			
+			suivant.addActionListener(new ControleeeSuivant(this));
 		}
 		
 		public static void main(String[] args) {
 			FenetreEmploiDuTemps maFenetre = new FenetreEmploiDuTemps();
 			maFenetre.setVisible(true);
 		}
+}
+
+class ControleeeSuivant implements ActionListener {
+	
+	FenetreEmploiDuTemps maFenetre;
+	
+	public ControleeeSuivant(FenetreEmploiDuTemps uneFenetre){
+		maFenetre = uneFenetre;
+	}
+	
+	@Override
+	public void actionPerformed(ActionEvent e){
+		maFenetre.setVisible(false);
+		FenetreMenuProf newFenetre = new FenetreMenuProf();
+		newFenetre.setVisible(true);		
+	}
 }

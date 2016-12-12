@@ -2,6 +2,9 @@ package insa.projet.leboncours.ihm;
 
 import insa.projet.leboncours.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
@@ -10,8 +13,11 @@ public class FenetreInscriptionProf extends JFrame {
 	/**
 	 * Une police pour le titre du site */
 	private final static Font POLICE_TITRE = new Font("Berlin Sans FB",Font.PLAIN,30);
-	protected JTextField champ;
-	protected JTextField champp;
+	protected JTextField champ_nom;
+	protected JTextField champ_prenom;
+	protected JTextField champ_age;
+	protected JTextField champ_cp;
+	protected JTextField champ_prix;
 	protected JComboBox sexe_choix, vehicule_choix, niveau_choix;
 	protected JButton suivant;
 	
@@ -27,13 +33,13 @@ public class FenetreInscriptionProf extends JFrame {
 		panel.add(new Canvas());
 		panel.add(new Canvas());
 		JLabel nom = new JLabel("Nom:");
-		champ = new JTextField(20);
+		champ_nom = new JTextField(20);
 		panel.add(nom);
-		panel.add(champ);
+		panel.add(champ_nom);
 		JLabel prenom = new JLabel("Prenom:");
-		champp = new JTextField(20);
+		champ_prenom = new JTextField(20);
 		panel.add(prenom);
-		panel.add(champp);
+		panel.add(champ_prenom);
 		JLabel sexe= new JLabel("Sexe:");
 		sexe_choix = new JComboBox();
 		sexe_choix.addItem("Homme");
@@ -41,9 +47,9 @@ public class FenetreInscriptionProf extends JFrame {
 		panel.add(sexe);
 		panel.add(sexe_choix);
 		JLabel age = new JLabel("Age:");
-		champp = new JTextField(20);
+		champ_age = new JTextField(20);
 		panel.add(age);
-		panel.add(champp);
+		panel.add(champ_age);
 		JLabel niveau = new JLabel("Niveau d'étude:");
 		niveau_choix = new JComboBox();
 		niveau_choix.addItem("BAC");
@@ -57,13 +63,13 @@ public class FenetreInscriptionProf extends JFrame {
 		panel.add(niveau);
 		panel.add(niveau_choix);
 		JLabel codePost = new JLabel("Code Postal:");
-		champp = new JTextField(20);
+		champ_cp = new JTextField(20);
 		panel.add(codePost);
-		panel.add(champp);
+		panel.add(champ_cp);
 		JLabel prix = new JLabel("Prix de l'heure:");
-		champp = new JTextField(20);
+		champ_prix = new JTextField(20);
 		panel.add(prix);
-		panel.add(champp);
+		panel.add(champ_prix);
 		JLabel vehicule = new JLabel("Véhiculé ?:");
 		vehicule_choix = new JComboBox();
 		vehicule_choix.addItem("Oui");
@@ -95,13 +101,109 @@ public class FenetreInscriptionProf extends JFrame {
 		mainPanel.setBorder(new EmptyBorder(10,10,10,10));
 		
 		this.pack();
+		suivant.addActionListener(new ControleeSuivant(this));
 	}
-	
-	
-	
+
+
+
 	public static void main(String[] args) {
 		FenetreInscriptionProf maFenetre = new FenetreInscriptionProf();
 		maFenetre.setVisible(true);
 	}
+}
+
+class ControleeSuivant implements ActionListener {
+
+	FenetreInscriptionProf maFenetre;
+	String nom, prenom, age, cp, prix, sexe; 
+	int niveau, agee;  //agee sert pour le constructeur de prof, il faut un int, au debut on utilise age pour comparer avec vide
+	float prixx;   //pareil pour prixx et cpp ce sont des cast pour construire le prof
+	long cpp;
+	boolean vehicule;
+	JOptionPane jop;
+
+	public ControleeSuivant(FenetreInscriptionProf uneFenetre){
+		maFenetre = uneFenetre;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e){
+		// récupération des TextField pour voir s'ils sont vides 
+		nom = maFenetre.champ_nom.getText();
+		prenom = maFenetre.champ_prenom.getText();
+		age = maFenetre.champ_age.getText();
+		cp = maFenetre.champ_cp.getText();
+		prix = maFenetre.champ_prix.getText();
 	
+		if((nom.equals("")) || (prenom.equals("")) || (age.equals("")) || (cp.equals("")) || (prix.equals("")) ) {
+			jop = new JOptionPane();
+			jop.showMessageDialog(null, "Un des champs n'a pas été correctement rempli. Vous pourrez modifier vos informations plus tard.", "Attention", JOptionPane.WARNING_MESSAGE);
+		}
+		
+		// Cast des données qui étaient en String dans leur type qui correspond au constructeur de prof
+		agee = Integer.parseInt(age);
+		prixx = Float.parseFloat(prix);
+		cpp = Long.valueOf(cp).longValue();
+		//System.out.println("age" + agee);
+
+		// récupération des autres infos pour ensuite les associer au profil créé
+		sexe = (String) maFenetre.sexe_choix.getSelectedItem();
+		niveau = niveauProf((String) maFenetre.niveau_choix.getSelectedItem());
+		vehicule =  vehiculeBoolean((String) maFenetre.vehicule_choix.getSelectedItem());
+		Prof prof = new Prof(nom, prenom, sexe, agee, niveau, cpp, prixx,vehicule, null);
+		
+		
+		maFenetre.setVisible(false);
+		FenetreEmploiDuTemps newFenetre = new FenetreEmploiDuTemps();
+		newFenetre.setVisible(true);
+	}
+	
+	//fonction qui associe le niveau du prof choisi dans l'interface à un integer pour le code
+	public int niveauProf(String niv){
+		int niveau = 0;
+		
+		switch (niv)
+		{
+		  case "BAC":
+		    niveau = 0;
+		    break;
+		  case "BAC +1":
+			 niveau = 1;
+		    break;
+		  case "BAC +2":
+			 niveau = 2;
+		    break;
+		  case "BAC +3":
+				 niveau = 3;
+			    break;
+		  case "BAC +4":
+				 niveau = 4;
+			    break;
+		  case "BAC +5":
+				 niveau = 5;
+			    break;
+		  case "BAC +6":
+				 niveau = 6;
+			    break;
+		  case "BAC +7":
+				 niveau = 7;
+			    break;  
+		}
+		return niveau;
+	}
+	
+	//fonction qui associe la réponse à la question véhiculé? en booleen
+		public boolean vehiculeBoolean(String vehic){
+			boolean vehicule= true;
+			switch (vehic)
+			{
+			  case "Oui":
+				 vehicule= true;
+			    break;
+			  case "Non":
+				 vehicule= false;
+			    break;
+			}
+			return vehicule;
+		}
 }

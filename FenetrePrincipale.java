@@ -20,8 +20,8 @@ public class FenetrePrincipale extends JFrame{
 	private final static Font POLICE_TITRE = new Font("Berlin Sans FB",Font.PLAIN,30);
 	private final static Font POLICE_SSTITRE = new Font("",Font.BOLD,20);
 	
-	protected JTextField champ;
-	protected JTextField champp;
+	protected JTextField champ_nom;
+	protected JTextField champ_prenom;
 	protected JButton prof;
 	protected JButton eleve;
 	protected JButton connecter;
@@ -38,13 +38,13 @@ public class FenetrePrincipale extends JFrame{
 		textPanelg.add(connexion);
 		textPanelg.add(new Canvas());
 		JLabel nom = new JLabel("Nom:");
-		champ = new JTextField(10);
+		champ_nom = new JTextField(10);
 		textPanelg.add(nom);
-		textPanelg.add(champ);
+		textPanelg.add(champ_nom);
 		JLabel prenom = new JLabel("Prenom:");
-		champp = new JTextField(10);
+		champ_prenom = new JTextField(10);
 		textPanelg.add(prenom);
-		textPanelg.add(champp);
+		textPanelg.add(champ_prenom);
 		textPanelg.add(new Canvas());
 		connecter = new JButton("Se connecter");
 		textPanelg.add(connecter); 
@@ -129,7 +129,30 @@ class ControleProf implements ActionListener {
 	}	
 	
 }
+
+class ControleConnec implements ActionListener {
+	
+	String nom, prenom;
+	FenetrePrincipale maFenetre;
 		
+	public ControleConnec(FenetrePrincipale uneFenetre){
+			maFenetre = uneFenetre;
+	}
+		
+	@Override
+	public void actionPerformed(ActionEvent e){
+		
+			nom = maFenetre.champ_nom.getText();
+			prenom = maFenetre.champ_prenom.getText();
+			
+		    //la il faut faire la recherche dans la base de données
+			
+			maFenetre.setVisible(false);
+			FenetreInscriptionProf newFenetre = new FenetreInscriptionProf();
+			newFenetre.setVisible(true);			
+	}	
+	
+}
 	
 
 

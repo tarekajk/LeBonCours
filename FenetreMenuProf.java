@@ -11,11 +11,13 @@ public class FenetreMenuProf extends JFrame {
 	 * Une police pour le titre du site */
 	private final static Font POLICE_TITRE = new Font("Berlin Sans FB",Font.PLAIN,30);
 	private final static Font POLICE_SSTITRE = new Font("",Font.BOLD,20);
-	protected JButton modif;
+	protected JButton modif_edt;
 	protected JButton voir;
-	protected JButton suppr;
+	protected JButton annul;
 	protected JButton rep;
 	protected JButton quit;
+	protected JButton suppr;
+	protected JButton modif_infos;
 	
 	public FenetreMenuProf() {
 		super("Le bon cours/Menu Professeur");
@@ -25,16 +27,20 @@ public class FenetreMenuProf extends JFrame {
 		
 		
 		//création du panel avec toutes les questions
-		JPanel panel= new JPanel(new GridLayout(6,0,0,15));
+		JPanel panel= new JPanel(new GridLayout(8,0,0,15));
 		voir = new JButton("Voir mes cours");
 		rep = new JButton("Mes demandes de réservation");
-		modif = new JButton("Modifier mon emploi du temps");
-		suppr = new JButton("Annuler un cours");
+		annul = new JButton("Annuler un cours");
+		modif_edt = new JButton("Modifier mon emploi du temps");
+		modif_infos = new JButton("Modifier mes informations");
+		suppr = new JButton("Supprimer mon compte");
 		quit = new JButton("Quitter l'application");
 		panel.add(new Canvas());
 		panel.add(voir);  
 		panel.add(rep);
-		panel.add(modif);
+		panel.add(annul);
+		panel.add(modif_edt);
+		panel.add(modif_infos);
 		panel.add(suppr);
 		panel.add(quit);
 		

@@ -15,6 +15,8 @@ public class FenetreMenuEleve extends JFrame {
 	protected JButton voir;
 	protected JButton suppr;
 	protected JButton quit;
+	protected JButton annul;
+	protected JButton modif_infos;
 	
 	public FenetreMenuEleve() {
 		super("Le bon cours/Menu Eleve");
@@ -24,14 +26,19 @@ public class FenetreMenuEleve extends JFrame {
 		
 		
 		//création du panel avec toutes les questions
-		JPanel panel= new JPanel(new GridLayout(6,0,0,15));
+		JPanel panel= new JPanel(new GridLayout(7,0,0,15));
 		rech = new JButton("Rechercher un cours");
 		voir = new JButton("Voir mes cours");
-		suppr = new JButton("Annuler un cours");
+		annul = new JButton("Annuler un cours");
+		modif_infos = new JButton("Modifier mes informations");
+		suppr = new JButton("Supprimer mon compte");
 		quit = new JButton("Quitter l'application");
+		
 		panel.add(new Canvas());
 		panel.add(rech);  
 		panel.add(voir);
+		panel.add(annul);
+		panel.add(modif_infos);
 		panel.add(suppr);
 		panel.add(quit);
 		
