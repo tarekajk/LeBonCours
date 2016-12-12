@@ -18,11 +18,11 @@ public class FenetreInscriptionEleve extends JFrame {
 	public FenetreInscriptionEleve() {
 		super("Le bon cours/Inscription Eleve");
 		
-		//programme se termine quand fenetre fermée
+		//programme se termine quand fenetre fermÃ©e
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		
-		//création du panel avec toutes les questions
+		//crÃ©ation du panel avec toutes les questions
 		JPanel panel= new JPanel(new GridLayout(8,2,0,5));
 		panel.add(new Canvas());
 		panel.add(new Canvas());
@@ -44,15 +44,15 @@ public class FenetreInscriptionEleve extends JFrame {
 		champp = new JTextField(20);
 		panel.add(age);
 		panel.add(champp);
-		JLabel niveau = new JLabel("Niveau d'étude:");
+		JLabel niveau = new JLabel("Niveau d'Ã©tude:");
 		niveau_choix = new JComboBox();
 		niveau_choix.addItem("Primaire");
-		niveau_choix.addItem("6ème");
-		niveau_choix.addItem("5ème");
-		niveau_choix.addItem("4ème");
-		niveau_choix.addItem("3ème");
+		niveau_choix.addItem("6Ã¨me");
+		niveau_choix.addItem("5Ã¨me");
+		niveau_choix.addItem("4Ã¨me");
+		niveau_choix.addItem("3Ã¨me");
 		niveau_choix.addItem("Seconde");
-		niveau_choix.addItem("Première");
+		niveau_choix.addItem("PremiÃ¨re");
 		niveau_choix.addItem("Terminale");
 		panel.add(niveau);
 		panel.add(niveau_choix);
@@ -65,7 +65,7 @@ public class FenetreInscriptionEleve extends JFrame {
 		panel.add(suivant); 
 		
 		
-		//création du panel nord, avec nom du site
+		//crÃ©ation du panel nord, avec nom du site
 		JPanel haut = new JPanel();
 		haut.setLayout(new BorderLayout());
 		
@@ -86,13 +86,49 @@ public class FenetreInscriptionEleve extends JFrame {
 		mainPanel.setBorder(new EmptyBorder(10,10,10,10));
 		
 		this.pack();
+		suivant.addActionListener(new ControleSuivant(this));
 	}
-	
-	
-	
+
+
+
 	public static void main(String[] args) {
 		FenetreInscriptionEleve maFenetre = new FenetreInscriptionEleve();
 		maFenetre.setVisible(true);
 	}
-	
+
+}
+
+class ControleSuivant implements ActionListener {
+
+	FenetreInscriptionEleve maFenetre;
+	String nom, prenom ;
+	Boolean correct;
+
+	public ControleSuivant(FenetreInscriptionEleve uneFenetre){
+		maFenetre = uneFenetre;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e){
+		/*correct = true;
+		do{
+		nom = maFenetre.champ_nom.getText();
+		prenom = maFenetre.champ_prenom.getText();
+		if (nom.equals("")){
+			correct = false;
+		}
+		else correct = true;
+		if (prenom.equals("")){
+			correct = false;
+		}
+		else correct = true;
+		} while(correct == false);
+			*/
+		
+
+		maFenetre.setVisible(false);
+		FenetreMenuEleve newFenetre = new FenetreMenuEleve();
+		newFenetre.setVisible(true);
+	}
+
 }
