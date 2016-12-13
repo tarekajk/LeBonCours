@@ -47,7 +47,7 @@ public class FenetreInscriptionProf extends JFrame {
 		panel.add(sexe);
 		panel.add(sexe_choix);
 		JLabel age = new JLabel("Age:");
-		champ_age = new JTextField(20);
+		champ_age = new JTextField("0",20);
 		panel.add(age);
 		panel.add(champ_age);
 		JLabel niveau = new JLabel("Niveau d'étude:");
@@ -63,11 +63,11 @@ public class FenetreInscriptionProf extends JFrame {
 		panel.add(niveau);
 		panel.add(niveau_choix);
 		JLabel codePost = new JLabel("Code Postal:");
-		champ_cp = new JTextField(20);
+		champ_cp = new JTextField("00000",20);
 		panel.add(codePost);
 		panel.add(champ_cp);
 		JLabel prix = new JLabel("Prix de l'heure:");
-		champ_prix = new JTextField(20);
+		champ_prix = new JTextField("0",20);
 		panel.add(prix);
 		panel.add(champ_prix);
 		JLabel vehicule = new JLabel("Véhiculé ?:");
@@ -135,7 +135,7 @@ class ControleeSuivant implements ActionListener {
 		cp = maFenetre.champ_cp.getText();
 		prix = maFenetre.champ_prix.getText();
 	
-		if((nom.equals("")) || (prenom.equals("")) || (age.equals("")) || (cp.equals("")) || (prix.equals("")) ) {
+		if((nom.equals("")) || (prenom.equals("")) || (age.equals("0")) || (cp.equals("00000")) || (prix.equals("0")) ) {
 			jop = new JOptionPane();
 			jop.showMessageDialog(null, "Un des champs n'a pas été correctement rempli. Vous pourrez modifier vos informations plus tard.", "Attention", JOptionPane.WARNING_MESSAGE);
 		}
@@ -144,7 +144,6 @@ class ControleeSuivant implements ActionListener {
 		agee = Integer.parseInt(age);
 		prixx = Float.parseFloat(prix);
 		cpp = Long.valueOf(cp).longValue();
-		//System.out.println("age" + agee);
 
 		// récupération des autres infos pour ensuite les associer au profil créé
 		sexe = (String) maFenetre.sexe_choix.getSelectedItem();
@@ -154,7 +153,7 @@ class ControleeSuivant implements ActionListener {
 		
 		
 		maFenetre.setVisible(false);
-		FenetreEmploiDuTemps newFenetre = new FenetreEmploiDuTemps();
+		FenetreEmploiDuTempsInit newFenetre = new FenetreEmploiDuTempsInit();
 		newFenetre.setVisible(true);
 	}
 	

@@ -50,7 +50,7 @@ public class FenetreInscriptionEleve extends JFrame {
 		panel.add(sexe);
 		panel.add(sexe_choix);
 		JLabel age = new JLabel("Age:");
-		champ_age = new JTextField(20);
+		champ_age = new JTextField("0",20);
 		panel.add(age);
 		panel.add(champ_age);
 		JLabel niveau = new JLabel("Niveau d'étude:");
@@ -66,7 +66,7 @@ public class FenetreInscriptionEleve extends JFrame {
 		panel.add(niveau);
 		panel.add(niveau_choix);
 		JLabel codePost = new JLabel("Code Postal:");
-		champ_cp = new JTextField(20);
+		champ_cp = new JTextField("00000",20);
 		panel.add(codePost);
 		panel.add(champ_cp);
 		suivant = new JButton("SUIVANT");
@@ -109,7 +109,9 @@ public class FenetreInscriptionEleve extends JFrame {
 class ControleSuivant implements ActionListener {
 
 	FenetreInscriptionEleve maFenetre;
-	String nom, prenom, age, cp ;
+	String nom, prenom, age, cp, sexe; 
+	int niveau, agee;  //agee sert pour le constructeur de prof, il faut un int, au debut on utilise age pour comparer avec vide
+	long cpp; //pareil pour cpp ce sont des cast pour construire le prof
 	JOptionPane jop;
 
 	public ControleSuivant(FenetreInscriptionEleve uneFenetre){
@@ -123,13 +125,56 @@ class ControleSuivant implements ActionListener {
 		age = maFenetre.champ_age.getText();
 		cp = maFenetre.champ_cp.getText();
 	
-		if((nom.equals("")) || (prenom.equals("")) || (age.equals("")) || (cp.equals("")) ) {
+		if((nom.equals("")) || (prenom.equals("")) || (age.equals("0")) || (cp.equals("00000")) ) {
 			jop = new JOptionPane();
 			jop.showMessageDialog(null, "Un des champs n'a pas été correctement rempli. Vous pourrez modifier vos informations plus tard.", "Attention", JOptionPane.WARNING_MESSAGE);
 		}
-
+		
+		// Cast des données qui étaient en String dans leur type qui correspond au constructeur de prof
+		agee = Integer.parseInt(age);
+		cpp = Long.valueOf(cp).longValue();
+		
+		// récupération des autres infos pour ensuite les associer au profil créé
+		sexe = (String) maFenetre.sexe_choix.getSelectedItem();
+		niveau = niveauEleve((String) maFenetre.niveau_choix.getSelectedItem());
+		Eleve eleve = new Eleve(nom, prenom, sexe, agee, niveau, cpp);
+		
 		maFenetre.setVisible(false);
 		FenetreMenuEleve newFenetre = new FenetreMenuEleve();
 		newFenetre.setVisible(true);
 	}
+	
+	//fonction qui associe le niveau de l'élève, choisi dans l'interface à un integer pour le code
+		public int niveauEleve(String niv){
+			int niveau = 0;
+			
+			switch (niv)
+			{
+			  case "Primaire":
+			    niveau = -7;
+			    break;
+			  case "6ème":
+				 niveau = -6;
+			    break;
+			  case "5ème":
+				 niveau = -5;
+			    break;
+			  case "4ème":
+					 niveau = -4;
+				    break;
+			  case "3ème":
+					 niveau = -3;
+				    break;
+			  case "Seconde":
+					 niveau = -2;
+				    break;
+			  case "Première":
+					 niveau = -1;
+				    break;
+			  case "Terminale":
+					 niveau = 0;
+				    break;  
+			}
+			return niveau;
+		}
 }
