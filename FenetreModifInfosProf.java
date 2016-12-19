@@ -8,13 +8,15 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
-public class FenetreInscriptionProf extends JFrame {
+public class FenetreModifInfosProf extends JFrame {
 
 	RMIServeur LeBonCoursDistant;
+	Prof leprof;
 	
 	/**
 	 * Une police pour le titre du site */
@@ -28,13 +30,18 @@ public class FenetreInscriptionProf extends JFrame {
 	protected JButton suivant;
 	protected JRadioButton bout_bio, bout_maths, bout_phy, bout_lang, bout_litt, bout_eco;
 	
-	public FenetreInscriptionProf(RMIServeur r) {
-		super("Le bon cours/Inscription Professeur");
+	public FenetreModifInfosProf(RMIServeur r, Prof p) {
+		super("Le bon cours/Menu Professeur/Modifier mes informations");
 		LeBonCoursDistant = r;
+		leprof = p;
 		
 		//programme se termine quand fenetre fermée
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
+		// /!\ A FAIRE /!\
+		//ICI IL FAUT SUPPRIMER LE PROF DES ARRAYLIST DE MATIERES OU IL EST
+		//RAPPEL : on va le réajouter dans les nouvelles arraylist au moment de l'action listener
+		// /!\ A FAIRE /!\
 		
 		//création du panel avec toutes les questions
 		JPanel panel= new JPanel(new GridLayout(13,3,2,5));
@@ -42,12 +49,12 @@ public class FenetreInscriptionProf extends JFrame {
 		panel.add(new Canvas());
 		panel.add(new Canvas());
 		JLabel nom = new JLabel("Nom:");
-		champ_nom = new JTextField(10);
+		champ_nom = new JTextField(leprof.getNom(),10);
 		panel.add(nom);
 		panel.add(champ_nom);
 		panel.add(new Canvas());
 		JLabel prenom = new JLabel("Prenom:");
-		champ_prenom = new JTextField(10);
+		champ_prenom = new JTextField(leprof.getPrenom(),10);
 		panel.add(prenom);
 		panel.add(champ_prenom);
 		panel.add(new Canvas());
@@ -55,11 +62,12 @@ public class FenetreInscriptionProf extends JFrame {
 		sexe_choix = new JComboBox();
 		sexe_choix.addItem("Homme");
 		sexe_choix.addItem("Femme");
+		sexe_choix.setSelectedItem(leprof.getSexe());  
 		panel.add(sexe);
 		panel.add(sexe_choix);
 		panel.add(new Canvas());
 		JLabel age = new JLabel("Age:");
-		champ_age = new JTextField("0",10);
+		champ_age = new JTextField(Integer.toString(leprof.getAge()),10);
 		panel.add(age);
 		panel.add(champ_age);
 		panel.add(new Canvas());
@@ -73,16 +81,17 @@ public class FenetreInscriptionProf extends JFrame {
 		niveau_choix.addItem("BAC +5");
 		niveau_choix.addItem("BAC +6");
 		niveau_choix.addItem("BAC +7");
+		niveau_choix.setSelectedIndex(leprof.getNiveau());      
 		panel.add(niveau);
 		panel.add(niveau_choix);
 		panel.add(new Canvas());
 		JLabel codePost = new JLabel("Code Postal:");
-		champ_cp = new JTextField("00000",10);
+		champ_cp = new JTextField(Long.toString(leprof.getCodePostal()),10);
 		panel.add(codePost);
 		panel.add(champ_cp);
 		panel.add(new Canvas());
 		JLabel prix = new JLabel("Prix de l'heure:");
-		champ_prix = new JTextField("0",10);
+		champ_prix = new JTextField(Float.toString(leprof.getPrix()),10);
 		panel.add(prix);
 		panel.add(champ_prix);
 		panel.add(new Canvas());
@@ -90,11 +99,17 @@ public class FenetreInscriptionProf extends JFrame {
 		vehicule_choix = new JComboBox();
 		vehicule_choix.addItem("Oui");
 		vehicule_choix.addItem("Non");
+		vehicule_choix.setSelectedItem(IsVoitureToComboBox(leprof.isVoiture()));      //A VERIFIER
 		panel.add(vehicule);
 		panel.add(vehicule_choix);
 		panel.add(new Canvas());
 		JLabel cours = new JLabel("Matières dispensées:");
 		bout_bio = new JRadioButton("Biologie",false);
+		// /!\ A FAIRE /!\
+		//LA IL FAUT CHERCHER LE PROF DANS L'ARRAYLIST DE LA MATIERE ET S'IL EST DEDANS FAUT INITIALISER A TRUE! PAREIL POUR CHAQUE MATIERE
+		// /!\ A FAIRE /!\
+		//bout_bio.setEnabled(boolean b) il faut mettre ça et selon si tu mets true ou false dans les parentheses ca te coche ou non
+		 // il faut le faire pour chaque matière
 		bout_maths = new JRadioButton("Mathématiques",false);
 		bout_phy = new JRadioButton("Physique",false);
 		bout_lang = new JRadioButton("Langues",false);
@@ -124,7 +139,7 @@ public class FenetreInscriptionProf extends JFrame {
 		haut.add(titre, BorderLayout.NORTH);
 		JLabel saut = new JLabel("              ");
 		haut.add(saut, BorderLayout.CENTER);
-		JLabel phrasee = new JLabel("Veuillez remplir les champs suivants pour vous inscrire:");
+		JLabel phrasee = new JLabel("Voici les informations que vous nous avez fourni. Vous pouvez les compléter ou les mettre à jour.");
 		haut.add(phrasee, BorderLayout.SOUTH);
 		
 		//remplissage du panel principal
@@ -135,21 +150,39 @@ public class FenetreInscriptionProf extends JFrame {
 		mainPanel.setBorder(new EmptyBorder(10,10,10,10));
 		
 		this.pack();
-		suivant.addActionListener(new ControleeSuivant(this));
+		suivant.addActionListener(new ControleSuivantModifInfosProf(this));
+	}
+	
+	
+	public String IsVoitureToComboBox(boolean vehic){
+		String vehicule= "";
+		if (vehic == true){
+			 vehicule= "Oui";}
+		if (vehic == false){
+			 vehicule= "Non";}
+		return vehicule;
 	}
 
 
 
 	public static void main(String[] args) throws RemoteException {
+		int[][] dispo = new int[11][7];
+		for (int i=0;i<11;i++) {
+			for (int j=0;j<7;j++) dispo[i][j]=1;
+		}
+		ArrayList<ReservationProf> resa = new ArrayList<ReservationProf>();
+		EmploiDuTemps edt = new EmploiDuTemps(dispo,resa);
+		
+		Prof leprof = new Prof("Guilloteau","Claire","Femme", 21, 4, 76000, 20, false, edt);
 		RMIServeurImpl r = new RMIServeurImpl();
-		FenetreInscriptionProf maFenetre = new FenetreInscriptionProf(r);
+		FenetreModifInfosProf maFenetre = new FenetreModifInfosProf(r,leprof);
 		maFenetre.setVisible(true);
 	}
 }
 
-class ControleeSuivant implements ActionListener {
+class ControleSuivantModifInfosProf implements ActionListener {
 
-	FenetreInscriptionProf maFenetre;
+	FenetreModifInfosProf maFenetre;
 	String nom, prenom, age, cp, prix, sexe; 
 	int niveau, agee;  //agee sert pour le constructeur de prof, il faut un int, au debut on utilise age pour comparer avec vide
 	float prixx;   //pareil pour prixx et cpp ce sont des cast pour construire le prof
@@ -157,7 +190,7 @@ class ControleeSuivant implements ActionListener {
 	boolean vehicule, bio, math, phy, lang, litt, eco;
 	JOptionPane jop;
 
-	public ControleeSuivant(FenetreInscriptionProf uneFenetre){
+	public ControleSuivantModifInfosProf(FenetreModifInfosProf uneFenetre){
 		maFenetre = uneFenetre;
 	}
 
@@ -172,12 +205,9 @@ class ControleeSuivant implements ActionListener {
 	
 		if((nom.equals("")) || (prenom.equals("")) || (age.equals("0")) || (cp.equals("00000")) || (prix.equals("0")) ) {
 			jop = new JOptionPane();
-			jop.showMessageDialog(null, "Un des champs n'a pas été correctement rempli. Veuillez recommencer.", "Attention", JOptionPane.WARNING_MESSAGE);
-			maFenetre.setVisible(false);
-			FenetreInscriptionProf newFenetre = new FenetreInscriptionProf(maFenetre.LeBonCoursDistant); 
-			newFenetre.setVisible(true);
+			jop.showMessageDialog(null, "Un des champs n'a pas été correctement rempli. Vous pourrez le remplir de nouveau dans l'onglet \"Modifier mes informations\" de votre menu.", "Attention", JOptionPane.WARNING_MESSAGE);
 		}
-		else {
+		
 		// Cast des données qui étaient en String dans leur type qui correspond au constructeur de prof
 		agee = Integer.parseInt(age);
 		prixx = Float.parseFloat(prix);
@@ -188,7 +218,10 @@ class ControleeSuivant implements ActionListener {
 		niveau = niveauProf((String) maFenetre.niveau_choix.getSelectedItem());
 		vehicule =  vehiculeBoolean((String) maFenetre.vehicule_choix.getSelectedItem());
 		
-		Prof prof = new Prof(nom, prenom, sexe, agee, niveau, cpp, prixx,vehicule, null);
+		// /!\ A FAIRE /!\
+		// il faut associer : nom, prenom, sexe, agee, niveau, cpp, prixx,vehicule au prof en entrée de la fenetre
+		// /!\ A FAIRE /!\
+
 		
 		//récupération des matieres dispensées par le prof
 		bio = maFenetre.bout_bio.isSelected();
@@ -198,43 +231,13 @@ class ControleeSuivant implements ActionListener {
 		litt = maFenetre.bout_litt.isSelected();
 		eco = maFenetre.bout_eco.isSelected();
 		
+		// /!\A FAIRE /!\
+		// IL FAUT AJOUTER LE PROF AUX ARRAYLIST DES MATIERES OU C'EST TRUE. (se servir de ce qui a été fait dans fenetre inscription prof
+		// /!\A FAIRE /!\
 		
-		//on ajoute le prof aux arraylist des matières qu'il a choisi
-		
-		try {
-		if (bio) {
-			maFenetre.LeBonCoursDistant.getLeBonCours().ajouterProf(maFenetre.LeBonCoursDistant.getLeBonCours().bio, prof);
-			}
-		if (math) {
-			maFenetre.LeBonCoursDistant.getLeBonCours().ajouterProf(maFenetre.LeBonCoursDistant.getLeBonCours().maths, prof);
-		}
-		if (phy) {
-			maFenetre.LeBonCoursDistant.getLeBonCours().ajouterProf(maFenetre.LeBonCoursDistant.getLeBonCours().phy, prof);
-		}
-		if (lang) {
-			maFenetre.LeBonCoursDistant.getLeBonCours().ajouterProf(maFenetre.LeBonCoursDistant.getLeBonCours().langues, prof);
-		}
-		if (litt) {
-			maFenetre.LeBonCoursDistant.getLeBonCours().ajouterProf(maFenetre.LeBonCoursDistant.getLeBonCours().litt, prof);
-		}
-		if (eco) {
-			maFenetre.LeBonCoursDistant.getLeBonCours().ajouterProf(maFenetre.LeBonCoursDistant.getLeBonCours().eco, prof);
-		}
-		} catch (RemoteException | DejaEnregistreeProf e1) {
-			e1.printStackTrace();
-		}
-		
-		int i;
-		try {
-			i = maFenetre.LeBonCoursDistant.getLeBonCours().getListeProfs().indexOf(prof);
-			maFenetre.setVisible(false);
-			FenetreEmploiDuTempsInit newFenetre = new FenetreEmploiDuTempsInit(maFenetre.LeBonCoursDistant,i);
-			newFenetre.setVisible(true);
-		} catch (RemoteException e1) {
-			e1.printStackTrace();
-		}
-		
-		}
+		maFenetre.setVisible(false);
+		FenetreMenuProf newFenetre = new FenetreMenuProf();
+		newFenetre.setVisible(true);
 	}
 	
 	//fonction qui associe le niveau du prof choisi dans l'interface à un integer pour le code
@@ -285,4 +288,6 @@ class ControleeSuivant implements ActionListener {
 			}
 			return vehicule;
 		}
+		
+
 }

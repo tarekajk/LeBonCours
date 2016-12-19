@@ -2,6 +2,9 @@ package insa.projet.leboncours.ihm;
 
 import insa.projet.leboncours.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
@@ -66,6 +69,10 @@ public class FenetreMenuProf extends JFrame {
 		mainPanel.setBorder(new EmptyBorder(10,10,10,10));
 		
 		this.pack();
+		modif_edt.addActionListener(new ControleModifEdt(this));
+		modif_infos.addActionListener(new ControleModifInfos(this));
+		suppr.addActionListener(new ControleSupprimer(this));
+		quit.addActionListener(new ControleQuitter(this));
 	}
 	
 	
@@ -74,5 +81,78 @@ public class FenetreMenuProf extends JFrame {
 		FenetreMenuProf maFenetre = new FenetreMenuProf();
 		maFenetre.setVisible(true);
 	}
+	
+}
+
+class ControleModifEdt implements ActionListener {
+
+	FenetreMenuProf maFenetre;
+	
+	public ControleModifEdt(FenetreMenuProf uneFenetre){
+		maFenetre = uneFenetre;
+	}
+	
+	
+	@Override
+	public void actionPerformed(ActionEvent e){
+		maFenetre.setVisible(false);
+		FenetreEmploiDuTempsModif newFenetre = new FenetreEmploiDuTempsModif();   //rmiserveur et prof a mettre en entrée
+		newFenetre.setVisible(true);			
+	}	
+	
+}
+
+class ControleModifInfos implements ActionListener {
+
+	FenetreMenuProf maFenetre;
+	
+	public ControleModifInfos(FenetreMenuProf uneFenetre){
+		maFenetre = uneFenetre;
+	}
+	
+	
+	@Override
+	public void actionPerformed(ActionEvent e){
+		maFenetre.setVisible(false);
+		FenetreModifInfosProf newFenetre = new FenetreModifInfosProf();   //rmiserveur et prof a mettre en entrée
+		newFenetre.setVisible(true);			
+	}	
+	
+}
+
+class ControleSupprimer implements ActionListener {
+
+	FenetreMenuProf maFenetre;
+	
+	public ControleSupprimer(FenetreMenuProf uneFenetre){
+		maFenetre = uneFenetre;
+	}
+	
+	
+	@Override
+	public void actionPerformed(ActionEvent e){
+		// /!\ A FAIRE /!\
+		//SUPPRIMER LE COMPTE DE L'ELEVE
+		// /!\ A FAIRE /!\
+		maFenetre.setVisible(false);
+		FenetrePrincipale newFenetre = new FenetrePrincipale();   //mettre serveur entrée
+		newFenetre.setVisible(true);						//ON REVIENT AU MENU PRINCIPAL APRES SUPPRESSION COMPTE??
+	}	
+	
+}
+
+class ControleQuitter implements ActionListener {
+
+	FenetreMenuProf maFenetre;
+	
+	public ControleQuitter(FenetreMenuProf uneFenetre){
+		maFenetre = uneFenetre;
+	}
+	
+	
+	@Override
+	public void actionPerformed(ActionEvent e){
+		System.exit(0);			
+	}	
 	
 }

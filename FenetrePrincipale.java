@@ -1,14 +1,19 @@
 package insa.projet.leboncours.ihm;
 
-import insa.projet.leboncours.*;
+
+import insa.projet.leboncours.DejaEnregistreeEleve;
+import insa.projet.leboncours.Eleve;
+import insa.projet.leboncours.Prof;
+import insa.projet.leboncours.rmi.RMIServeur;
+import insa.projet.leboncours.rmi.RMIServeurImpl;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.rmi.RemoteException;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ListSelectionListener;
 
 
 
@@ -26,8 +31,11 @@ public class FenetrePrincipale extends JFrame{
 	protected JButton eleve;
 	protected JButton connecter;
 	
-	public FenetrePrincipale() {
+	RMIServeurImpl LeBonCoursDistant;
+	
+	public FenetrePrincipale(RMIServeurImpl r) {
 		super("Le Bon Cours/Accueil");
+		LeBonCoursDistant = r;
 		//programme se termine quand fenetre fermée
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
@@ -84,15 +92,20 @@ public class FenetrePrincipale extends JFrame{
 		
 		eleve.addActionListener(new ControleEleve(this));
 		prof.addActionListener(new ControleProf(this));
+		connecter.addActionListener(new ControleConnec(this));
 	}
 	
 	
 	
-	public static void main(String[] args) {
-		FenetrePrincipale maFenetre = new FenetrePrincipale();
+	public static void main(String[] args) throws RemoteException, DejaEnregistreeEleve {
+		RMIServeurImpl r = new RMIServeurImpl();
+		Prof prof = new Prof("AJK","Tarek","M",21,4,76100,20,true,null);
+		Eleve eleve = new Eleve("Wade","Barth","M",18,0,76000);
+		r.getLeBonCours().getListeProfs().add(prof);
+		r.getLeBonCours().ajouterEleve(eleve);
+		FenetrePrincipale maFenetre = new FenetrePrincipale(r);
 		maFenetre.setVisible(true);
 	}
-	
 
 }
 
@@ -108,8 +121,9 @@ class ControleEleve implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e){
 		maFenetre.setVisible(false);
-		FenetreInscriptionEleve newFenetre = new FenetreInscriptionEleve();
-		newFenetre.setVisible(true);		
+		FenetreInscriptionEleve newFenetre;
+			newFenetre = new FenetreInscriptionEleve(maFenetre.LeBonCoursDistant);
+			newFenetre.setVisible(true);			
 	}
 }
 
@@ -123,9 +137,9 @@ class ControleProf implements ActionListener {
 		
 	@Override
 	public void actionPerformed(ActionEvent e){
-			maFenetre.setVisible(false);
-			FenetreInscriptionProf newFenetre = new FenetreInscriptionProf();
-			newFenetre.setVisible(true);			
+		maFenetre.setVisible(false);
+		FenetreInscriptionProf newFenetre = new FenetreInscriptionProf(maFenetre.LeBonCoursDistant);
+		newFenetre.setVisible(true);			
 	}	
 	
 }
@@ -134,6 +148,7 @@ class ControleConnec implements ActionListener {
 	
 	String nom, prenom;
 	FenetrePrincipale maFenetre;
+	JOptionPane jop;
 		
 	public ControleConnec(FenetrePrincipale uneFenetre){
 			maFenetre = uneFenetre;
@@ -142,14 +157,31 @@ class ControleConnec implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e){
 		
-			nom = maFenetre.champ_nom.getText();
-			prenom = maFenetre.champ_prenom.getText();
-			
-		    //la il faut faire la recherche dans la base de données
-			
-			maFenetre.setVisible(false);
-			FenetreInscriptionProf newFenetre = new FenetreInscriptionProf();
-			newFenetre.setVisible(true);			
+		nom = maFenetre.champ_nom.getText();
+		prenom = maFenetre.champ_prenom.getText();
+		
+		try {
+			if (maFenetre.LeBonCoursDistant.getLeBonCours().ConnexionEleve(nom, prenom)!=null){
+				maFenetre.setVisible(false);
+				FenetreMenuEleve newFenetre = new FenetreMenuEleve();//maFenetre.LeBonCoursDistant,maFenetre.LeBonCoursDistant.getLeBonCours().ConnexionEleve(nom, prenom)
+				newFenetre.setVisible(true);
+			}
+			else if(maFenetre.LeBonCoursDistant.getLeBonCours().ConnexionProf(nom, prenom)!=null) {
+				maFenetre.setVisible(false);
+				FenetreMenuProf newFenetre = new FenetreMenuProf(); //maFenetre.LeBonCoursDistant,maFenetre.LeBonCoursDistant.getLeBonCours().ConnexionProf(nom, prenom)
+				newFenetre.setVisible(true);
+			}
+			else {
+				jop = new JOptionPane();
+				JOptionPane.showMessageDialog(null, "Les informations saisies ne correspondent à aucun compte déjà existant. Veuillez réessayer.", "Attention", JOptionPane.WARNING_MESSAGE);
+				maFenetre.setVisible(false);
+				FenetrePrincipale newFenetre = new FenetrePrincipale(maFenetre.LeBonCoursDistant); 
+				newFenetre.setVisible(true);
+			}
+		} catch (RemoteException e1) {
+				e1.printStackTrace();
+		}
+					
 	}	
 	
 }

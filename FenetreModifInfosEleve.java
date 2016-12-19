@@ -14,9 +14,10 @@ import java.lang.Object;
 import java.rmi.RemoteException;;
 
 
-public class FenetreInscriptionEleve extends JFrame {
+public class FenetreModifInfosEleve extends JFrame {
 
 	RMIServeur LeBonCoursDistant;
+	Eleve leleve;
 	
 	/**
 	 * Une police pour le titre du site */
@@ -30,9 +31,17 @@ public class FenetreInscriptionEleve extends JFrame {
 	protected JButton suivant;
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public FenetreInscriptionEleve(RMIServeur l) {
-		super("Le bon cours/Inscription Eleve");
-		LeBonCoursDistant = l;
+	
+	public FenetreModifInfosEleve(RMIServeur r, Eleve e) {
+		super("Le bon cours/ Menu Eleve/ Modifier mes informations");
+		LeBonCoursDistant = r;
+		leleve = e;
+		
+		// /!\ A FAIRE /!\
+		//ICI IL FAUT SUPPRIMER L'ELEVE DES ARRAYLIST OU IL EST
+		//RAPPEL : on va le réajouter dans l'arraylist au moment de l'action listener
+		// /!\ A FAIRE /!\
+		
 		//programme se termine quand fenetre fermée
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
@@ -42,21 +51,22 @@ public class FenetreInscriptionEleve extends JFrame {
 		panel.add(new Canvas());
 		panel.add(new Canvas());
 		JLabel nom = new JLabel("Nom:");
-		champ_nom = new JTextField(10);
+		champ_nom = new JTextField(leleve.getNom(),10);
 		panel.add(nom);
 		panel.add(champ_nom);
 		JLabel prenom = new JLabel("Prenom:");
-		champ_prenom = new JTextField(10);
+		champ_prenom = new JTextField(leleve.getPrenom(),10);
 		panel.add(prenom);
 		panel.add(champ_prenom);
 		JLabel sexe= new JLabel("Sexe:");
 		sexe_choix = new JComboBox();
 		sexe_choix.addItem("Homme");
 		sexe_choix.addItem("Femme");
+		sexe_choix.setSelectedItem(leleve.getSexe());
 		panel.add(sexe);
 		panel.add(sexe_choix);
 		JLabel age = new JLabel("Age:");
-		champ_age = new JTextField("0",10);
+		champ_age = new JTextField(Integer.toString(leleve.getAge()),10);
 		panel.add(age);
 		panel.add(champ_age);
 		JLabel niveau = new JLabel("Niveau d'étude:");
@@ -69,10 +79,11 @@ public class FenetreInscriptionEleve extends JFrame {
 		niveau_choix.addItem("Seconde");
 		niveau_choix.addItem("Première");
 		niveau_choix.addItem("Terminale");
+		niveau_choix.setSelectedIndex(leleve.getNiveau()+7);  
 		panel.add(niveau);
 		panel.add(niveau_choix);
 		JLabel codePost = new JLabel("Code Postal:");
-		champ_cp = new JTextField("00000",10);
+		champ_cp = new JTextField(Long.toString(leleve.getCodePostal()),10);
 		panel.add(codePost);
 		panel.add(champ_cp);
 		suivant = new JButton("SUIVANT");
@@ -101,27 +112,28 @@ public class FenetreInscriptionEleve extends JFrame {
 		mainPanel.setBorder(new EmptyBorder(10,10,10,10));
 		
 		this.pack();
-		suivant.addActionListener(new ControleSuivant(this));
+		suivant.addActionListener(new ControleSuivantModifInfosEleve(this));
 	}
 
 
 
 	public static void main(String[] args) throws RemoteException {
-		RMIServeurImpl LeBonCoursDistant = new RMIServeurImpl();
-		FenetreInscriptionEleve maFenetre = new FenetreInscriptionEleve(LeBonCoursDistant);
+		Eleve leleve = new Eleve("Guilloteau","Claire","Femme", 21, -6, 76000);
+		RMIServeurImpl r = new RMIServeurImpl();
+		FenetreModifInfosEleve maFenetre = new FenetreModifInfosEleve(r,leleve);
 		maFenetre.setVisible(true);
 	}
 }
 
-class ControleSuivant implements ActionListener {
+class ControleSuivantModifInfosEleve implements ActionListener {
 
-	FenetreInscriptionEleve maFenetre;
+	FenetreModifInfosEleve maFenetre;
 	String nom, prenom, age, cp, sexe; 
 	int niveau, agee;  //agee sert pour le constructeur de prof, il faut un int, au debut on utilise age pour comparer avec vide
 	long cpp; //pareil pour cpp ce sont des cast pour construire le prof
 	JOptionPane jop;
 
-	public ControleSuivant(FenetreInscriptionEleve uneFenetre){
+	public ControleSuivantModifInfosEleve(FenetreModifInfosEleve uneFenetre){
 		maFenetre = uneFenetre;
 	}
 
@@ -134,12 +146,9 @@ class ControleSuivant implements ActionListener {
 	
 		if((nom.equals("")) || (prenom.equals("")) || (age.equals("0")) || (cp.equals("00000")) ) {
 			jop = new JOptionPane();
-			jop.showMessageDialog(null, "Un des champs n'a pas été correctement rempli. Veuillez recommencer.", "Attention", JOptionPane.WARNING_MESSAGE);
-			maFenetre.setVisible(false);
-			FenetreInscriptionEleve newFenetre = new FenetreInscriptionEleve(maFenetre.LeBonCoursDistant); 
-			newFenetre.setVisible(true);
+			jop.showMessageDialog(null, "Un des champs n'a pas été correctement rempli. Vous pourrez le remplir de nouveau dans l'onglet \"Modifier mes informations\" de votre menu.", "Attention", JOptionPane.WARNING_MESSAGE);
 		}
-		else {
+		
 		// Cast des données qui étaient en String dans leur type qui correspond au constructeur de prof
 		agee = Integer.parseInt(age);
 		cpp = Long.valueOf(cp).longValue();
@@ -149,18 +158,13 @@ class ControleSuivant implements ActionListener {
 		niveau = niveauEleve((String) maFenetre.niveau_choix.getSelectedItem());
 		Eleve eleve = new Eleve(nom, prenom, sexe, agee, niveau, cpp);
 		
-		try {
-			maFenetre.LeBonCoursDistant.getLeBonCours().ajouterEleve(eleve);
-		} catch (DejaEnregistreeEleve e1) {
-			e1.printStackTrace();
-		} catch (RemoteException e1) {
-			e1.printStackTrace();
-		}
+		// /!\ A FAIRE /!\
+		//ICI IL FAUT AJOUTER L'ELEVE A L'ARRAYLIST DES ELEVES
+		// /!\ A FAIRE /!\
 		
 		maFenetre.setVisible(false);
-		FenetreMenuEleve newFenetre = new FenetreMenuEleve(); // maFenetre.LeBonCoursDistant,eleve
+		FenetreMenuEleve newFenetre = new FenetreMenuEleve();
 		newFenetre.setVisible(true);
-		}
 	}
 	
 	//fonction qui associe le niveau de l'élève, choisi dans l'interface à un integer pour le code
