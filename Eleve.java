@@ -1,9 +1,10 @@
 package insa.projet.leboncours;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
- * Classe qui représente un eleve
+ * Classe qui repr�sente un eleve
  * 
  * @author Claire Guilloteau - Tarek Al-Jijakli - Barthelemy Wade
  * @version 1.0
@@ -31,6 +32,9 @@ public class Eleve implements Serializable {
 	
 	/** Code postal de l'adresse de l'eleve */
 	private long codePostal;
+	
+	/** Une ArrayList de R�servation des cours de l'�l�ve */
+	private ArrayList<ReservationEleve> cours;
 	
 	/**
 	 * @return le nom de l'eleve
@@ -117,22 +121,50 @@ public class Eleve implements Serializable {
 	}
 	
 	/**
+	 * @return la liste de cours de l'eleve
+	 */
+	public ArrayList<ReservationEleve> getCours() {
+		return cours;
+	}
+
+	/**
+	 * @param cours la nouvelle liste de cours
+	 */
+	public void setCours(ArrayList<ReservationEleve> cours) {
+		this.cours = cours;
+	}
+	
+	/**
 	 * Constructeur
 	 * 
-	 * @param n   Le nom de l'eleve
-	 * @param p   Le prénom de l'eleve
-	 * @param sex Le sexe de l'eleve
-	 * @param age L'age de l'eleve
-	 * @param niv Le niveau d'etude de l'eleve
-	 * @param cp  Le code postal de l'adresse de l'eleve
+	 * @param n    Le nom de l'eleve
+	 * @param p    Le pr�nom de l'eleve
+	 * @param sex  Le sexe de l'eleve
+	 * @param age  L'age de l'eleve
+	 * @param niv  Le niveau d'etude de l'eleve
+	 * @param cp   Le code postal de l'adresse de l'eleve
+	 * @param resa La liste des cours reserves par l'eleve
 	 */
-	public Eleve(String n, String p, String sex, int age, int niv, long cp) {
+	public Eleve(String n, String p, String sex, int age, int niv, long cp, ArrayList<ReservationEleve> resa) {
 		this.setNom(n);
 		this.setPrenom(p);
 		this.setSexe(sex);
 		this.setAge(age);
 		this.setNiveau(niv);
 		this.setCodePostal(cp);
+		this.setCours(resa);
+	}
+
+	/**
+	 * Constructeur vide 
+	 */
+	public Eleve() {
+		this.nom = "";
+		this.prenom = "";
+		this.sexe = "";
+		this.age = 0;
+		this.niveau = 0;
+		this.codePostal = 0;
 	}
 	
 	

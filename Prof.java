@@ -195,6 +195,21 @@ public class Prof implements Serializable{
 		this.edt = edt;
 	}
 	
+	/**
+	 * Constructeur vide 
+	 */
+	public Prof() {
+		this.nom = "";
+		this.prenom = "";
+		this.sexe = "";
+		this.age = 0;
+		this.niveau = 0;
+		this.codePostal = 0;
+		this.prix = 0;
+		this.voiture = true;
+		this.edt = this.getEdt();
+	}
+	
 	
 	
 	
