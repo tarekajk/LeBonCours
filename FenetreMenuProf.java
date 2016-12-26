@@ -86,6 +86,13 @@ public class FenetreMenuProf extends JFrame {
 		modif_infos.addActionListener(new ControleModifInfos(this));
 		suppr.addActionListener(new ControleSupprimer(this));
 		quit.addActionListener(new ControleQuitter(this));
+		
+		// Affiche une fenêtre pour indiquer qu'il y a de nouvelles demandes de résa en attente
+		if (!prof.getEdt().getDemandesCours().isEmpty()) {
+			JOptionPane jop = new JOptionPane();
+			JOptionPane.showMessageDialog(null, "Vous avez de nouvelles demandes de réservation en attente.", "Attention", JOptionPane.WARNING_MESSAGE);
+		}
+		
 	}
 	
 	
@@ -96,17 +103,15 @@ public class FenetreMenuProf extends JFrame {
 		for (int i=0;i<11;i++) {
 			for (int j=0;j<7;j++) dispo[i][j]=1;
 		}
-		ArrayList<ReservationEleve> cours = new ArrayList<ReservationEleve>();
-		Eleve leleve = new Eleve("Lambert","Zoe","Femme", 16, -4, 76000, cours);
-		r.getLeBonCours().getListeEleve().add(leleve);
+		Eleve leleve = new Eleve("Lambert","Zoe","Femme", 16, -4, 76000, null);
 		ArrayList<ReservationProf> resa = new ArrayList<ReservationProf>();
 		ReservationProf uneresa = new ReservationProf(1,10,leleve);
 		resa.add(uneresa);
 		ArrayList<ReservationProf> demandes = new ArrayList<ReservationProf>();
-		demandes.add(uneresa);
+		ReservationProf unedem = new ReservationProf(1,9,leleve);
+		demandes.add(unedem);
 		EmploiDuTemps edt = new EmploiDuTemps(dispo,resa,demandes);
 		Prof leprof = new Prof("Guilloteau","Claire","Femme", 21, 4, 76000, 20, true, edt);
-		r.getLeBonCours().getListeProfs().add(leprof);
 		FenetreMenuProf maFenetre = new FenetreMenuProf(r,leprof);
 		maFenetre.setVisible(true);
 	}
@@ -132,7 +137,7 @@ class ControleVoirProf implements ActionListener {
 
 class ControleRepondreProf implements ActionListener {
 
-FenetreMenuProf maFenetre;
+	FenetreMenuProf maFenetre;
 	
 	public ControleRepondreProf(FenetreMenuProf uneFenetre){
 		maFenetre = uneFenetre;
@@ -141,9 +146,9 @@ FenetreMenuProf maFenetre;
 	
 	@Override
 	public void actionPerformed(ActionEvent e){
-		maFenetre.setVisible(false);
-		FenetreDemandesReservation newFenetre = new FenetreDemandesReservation(maFenetre.LeBonCoursDistant,maFenetre.prof);
-		newFenetre.setVisible(true);
+		// /!\ A FAIRE /!\
+		// Compléter une fois que la fenetre a été créée
+		// /!\ A FAIRE /!\
 	}	
 }
 
