@@ -9,12 +9,11 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
+
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
+
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -23,7 +22,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 @SuppressWarnings("serial")
-public class FenetreReservationEleve extends JFrame{
+public class FenetreAnnulationEleve extends JFrame{
 	
 	public RMIServeur LeBonCoursDistant;
 	public ReservationEleve resa;
@@ -35,8 +34,8 @@ public class FenetreReservationEleve extends JFrame{
 	private final static Font POLICE_TITRE = new Font("Berlin Sans FB",Font.PLAIN,30);
 	protected JButton valider, retour;
 	
-	public FenetreReservationEleve (RMIServeur leboncours, ReservationEleve r, Eleve el) {
-		super("Validation de la réservation");
+	public FenetreAnnulationEleve (RMIServeur leboncours, ReservationEleve r, Eleve el) {
+		super("Annulation de la réservation");
 		LeBonCoursDistant = leboncours; 
 		String lejour = jourString(r.getJour());
 		String lheure = heureString(r.getHeure());
@@ -66,7 +65,7 @@ public class FenetreReservationEleve extends JFrame{
 		haut.add(titre, BorderLayout.NORTH);
 		JLabel saut = new JLabel("              ");
 		haut.add(saut, BorderLayout.CENTER);
-		JLabel phrasee = new JLabel("Validation du cours du " + lejour + " à " + lheure + " avec " + leprof.getPrenom() + " " + leprof.getNom());
+		JLabel phrasee = new JLabel("Voulez-vous confirmer l'annulation du cours du " + lejour + " à " + lheure + " avec " + leprof.getPrenom() + " " + leprof.getNom()+" ?");
 		haut.add(phrasee, BorderLayout.SOUTH);
 										
 		//remplissage du panel principal
@@ -77,8 +76,8 @@ public class FenetreReservationEleve extends JFrame{
 		mainPanel.setBorder(new EmptyBorder(10,10,10,10));
 				
 		this.pack();
-		valider.addActionListener(new ControleValidationRes(this));
-		retour.addActionListener(new ControleRetourRecherche(this));
+		valider.addActionListener(new ControleAnnulationResEl(this));
+		retour.addActionListener(new ControleRetourRechercheAnnulEl(this));
 		}
 	
 	//fonction qui associe l'heure de la reservation en chaine de caractere pour l'affichage de la réservation
@@ -159,53 +158,60 @@ public class FenetreReservationEleve extends JFrame{
 }	
 
 
-class ControleValidationRes implements ActionListener {
+class ControleAnnulationResEl implements ActionListener {
 	
-	FenetreReservationEleve maFenetre;
+	FenetreAnnulationEleve maFenetre;
 	
-	public ControleValidationRes(FenetreReservationEleve uneFenetre){
+	public ControleAnnulationResEl(FenetreAnnulationEleve uneFenetre){
 		maFenetre = uneFenetre;
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e){
-		ReservationProf demandeResa = new ReservationProf(maFenetre.resa.getJour(), maFenetre.resa.getHeure(), maFenetre.leleve);
-		try {
-			int i=0;
-			while(i < maFenetre.LeBonCoursDistant.getLeBonCours().getListeProfs().size() )
-			{
-				if (maFenetre.LeBonCoursDistant.getLeBonCours().getListeProfs().get(i).equals(maFenetre.resa.getProf())) {
-					maFenetre.LeBonCoursDistant.getLeBonCours().getListeProfs().get(i).getEdt().demandesCours.add(demandeResa);
-					break;
-				}
-				i++;
+		ReservationEleve resaAnnul = new ReservationEleve(maFenetre.resa.getJour(), maFenetre.resa.getHeure(), maFenetre.resa.getProf());
+		//suppression du cours chez l'eleve
+		int i=0;
+		while(i < maFenetre.leleve.getCours().size() )
+		{
+			if (maFenetre.leleve.getCours().get(i).equals(resaAnnul)) {
+				maFenetre.leleve.getCours().remove(i);
+				break;
 			}
-		} catch (RemoteException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			i++;
+		}
+		//suppression du cours chez le prof
+		ReservationProf resaAnnull = new ReservationProf(maFenetre.resa.getJour(), maFenetre.resa.getHeure(), maFenetre.leleve);
+		int j=0;
+		while(j < maFenetre.resa.getProf().getEdt().getListeCours().size() )
+		{
+			if (maFenetre.resa.getProf().getEdt().getListeCours().get(j).equals(resaAnnull)) {
+				maFenetre.resa.getProf().getEdt().getListeCours().remove(j);
+				break;
+			}
+			j++;
 		}
 		maFenetre.setVisible(false);
-		JOptionPane.showMessageDialog(null, "Votre demande de reservation a bien été pris en compte");
+		JOptionPane.showMessageDialog(null, "Votre demande d'annulation a bien été prise en compte");
 		FenetreMenuEleve retourMenu = new FenetreMenuEleve(maFenetre.LeBonCoursDistant,maFenetre.leleve);
 		retourMenu.setVisible(true);
 		retourMenu.pack();		
 	}
 }
 
-class ControleRetourRecherche implements ActionListener {
+class ControleRetourRechercheAnnulEl implements ActionListener {
 		
-	FenetreReservationEleve maFenetre;
+	FenetreAnnulationEleve maFenetre;
 		
-	public ControleRetourRecherche(FenetreReservationEleve uneFenetre){
+	public ControleRetourRechercheAnnulEl(FenetreAnnulationEleve uneFenetre){
 		maFenetre = uneFenetre;
 	}
 		
 		@Override
 		public void actionPerformed(ActionEvent e){
 			maFenetre.setVisible(false);
-			FenetreRechercheProf retourRecherche = new FenetreRechercheProf(maFenetre.LeBonCoursDistant,maFenetre.leleve);
-			retourRecherche.setVisible(true);
-			retourRecherche.pack();
+			FenetreAnnuleCoursEleve retourAnnul = new FenetreAnnuleCoursEleve(maFenetre.LeBonCoursDistant,maFenetre.leleve);
+			retourAnnul.setVisible(true);
+			retourAnnul.pack();
 		}	
 
 }

@@ -30,19 +30,14 @@ public class FenetreModifInfosProf extends JFrame {
 	protected JButton suivant;
 	protected JRadioButton bout_bio, bout_maths, bout_phy, bout_lang, bout_litt, bout_eco;
 	
-	public FenetreModifInfosProf(RMIServeur r, Prof p) {
+	public FenetreModifInfosProf(RMIServeur r, Prof p) throws RemoteException {
 		super("Le bon cours/Menu Professeur/Modifier mes informations");
 		LeBonCoursDistant = r;
 		leprof = p;
 		
 		//programme se termine quand fenetre fermée
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		// /!\ A FAIRE /!\
-		//ICI IL FAUT SUPPRIMER LE PROF DES ARRAYLIST DE MATIERES OU IL EST
-		//RAPPEL : on va le réajouter dans les nouvelles arraylist au moment de l'action listener
-		// /!\ A FAIRE /!\
-		
+
 		//création du panel avec toutes les questions
 		JPanel panel= new JPanel(new GridLayout(13,3,2,5));
 		panel.add(new Canvas());
@@ -104,17 +99,26 @@ public class FenetreModifInfosProf extends JFrame {
 		panel.add(vehicule_choix);
 		panel.add(new Canvas());
 		JLabel cours = new JLabel("Matières dispensées:");
+		
 		bout_bio = new JRadioButton("Biologie",false);
-		// /!\ A FAIRE /!\
-		//LA IL FAUT CHERCHER LE PROF DANS L'ARRAYLIST DE LA MATIERE ET S'IL EST DEDANS FAUT INITIALISER A TRUE! PAREIL POUR CHAQUE MATIERE
-		// /!\ A FAIRE /!\
-		//bout_bio.setEnabled(boolean b) il faut mettre ça et selon si tu mets true ou false dans les parentheses ca te coche ou non
-		 // il faut le faire pour chaque matière
+		boolean b1 = LeBonCoursDistant.getLeBonCours().bio.contains(leprof);
+		bout_bio.setEnabled(b1);
 		bout_maths = new JRadioButton("Mathématiques",false);
+		boolean b2 = LeBonCoursDistant.getLeBonCours().maths.contains(leprof);
+		bout_maths.setEnabled(b2);
 		bout_phy = new JRadioButton("Physique",false);
+		boolean b3 = LeBonCoursDistant.getLeBonCours().phy.contains(leprof);
+		bout_phy.setEnabled(b3);
 		bout_lang = new JRadioButton("Langues",false);
+		boolean b4 = LeBonCoursDistant.getLeBonCours().langues.contains(leprof);
+		bout_lang.setEnabled(b4);
 		bout_litt = new JRadioButton("Littérature",false);
+		boolean b5 = LeBonCoursDistant.getLeBonCours().litt.contains(leprof);
+		bout_litt.setEnabled(b5);
 		bout_eco = new JRadioButton("Economie",false);
+		boolean b6 = LeBonCoursDistant.getLeBonCours().eco.contains(leprof);
+		bout_eco.setEnabled(b6);
+		
 		panel.add(cours);
 		panel.add(bout_bio);
 		panel.add(bout_maths);
@@ -128,6 +132,14 @@ public class FenetreModifInfosProf extends JFrame {
 		suivant = new JButton("SUIVANT");
 		panel.add(new Canvas());   //ajoute un vide
 		panel.add(suivant); 
+		
+		// Suppression du prof dans les ArrayList des matieres dans lesquelles il est present
+		if (b1) {LeBonCoursDistant.getLeBonCours().getBio().remove(leprof);}
+		if (b2) {LeBonCoursDistant.getLeBonCours().getMaths().remove(leprof);}
+		if (b3) {LeBonCoursDistant.getLeBonCours().getPhy().remove(leprof);}
+		if (b4) {LeBonCoursDistant.getLeBonCours().getLangues().remove(leprof);}
+		if (b5) {LeBonCoursDistant.getLeBonCours().getLitt().remove(leprof);}
+		if (b6) {LeBonCoursDistant.getLeBonCours().getEco().remove(leprof);}
 		
 		
 		//création du panel nord, avec nom du site
@@ -171,7 +183,8 @@ public class FenetreModifInfosProf extends JFrame {
 			for (int j=0;j<7;j++) dispo[i][j]=1;
 		}
 		ArrayList<ReservationProf> resa = new ArrayList<ReservationProf>();
-		EmploiDuTemps edt = new EmploiDuTemps(dispo,resa);
+		ArrayList<ReservationProf> demandes = new ArrayList<ReservationProf>();
+		EmploiDuTemps edt = new EmploiDuTemps(dispo,resa,demandes);
 		
 		Prof leprof = new Prof("Guilloteau","Claire","Femme", 21, 4, 76000, 20, false, edt);
 		RMIServeurImpl r = new RMIServeurImpl();
@@ -218,9 +231,47 @@ class ControleSuivantModifInfosProf implements ActionListener {
 		niveau = niveauProf((String) maFenetre.niveau_choix.getSelectedItem());
 		vehicule =  vehiculeBoolean((String) maFenetre.vehicule_choix.getSelectedItem());
 		
-		// /!\ A FAIRE /!\
-		// il faut associer : nom, prenom, sexe, agee, niveau, cpp, prixx,vehicule au prof en entrée de la fenetre
-		// /!\ A FAIRE /!\
+		try {
+			maFenetre.LeBonCoursDistant.getLeBonCours().getListeProfs().get(maFenetre.LeBonCoursDistant.getLeBonCours().getListeProfs().indexOf(maFenetre.leprof)).setAge(agee);
+		} catch (RemoteException e2) {
+			e2.printStackTrace();
+		}
+		try {
+			maFenetre.LeBonCoursDistant.getLeBonCours().getListeProfs().get(maFenetre.LeBonCoursDistant.getLeBonCours().getListeProfs().indexOf(maFenetre.leprof)).setNom(nom);
+		} catch (RemoteException e2) {
+			e2.printStackTrace();
+		}
+		try {
+			maFenetre.LeBonCoursDistant.getLeBonCours().getListeProfs().get(maFenetre.LeBonCoursDistant.getLeBonCours().getListeProfs().indexOf(maFenetre.leprof)).setPrenom(prenom);
+		} catch (RemoteException e2) {
+			e2.printStackTrace();
+		}
+		try {
+			maFenetre.LeBonCoursDistant.getLeBonCours().getListeProfs().get(maFenetre.LeBonCoursDistant.getLeBonCours().getListeProfs().indexOf(maFenetre.leprof)).setSexe(sexe);
+		} catch (RemoteException e2) {
+			e2.printStackTrace();
+		}
+		try {
+			maFenetre.LeBonCoursDistant.getLeBonCours().getListeProfs().get(maFenetre.LeBonCoursDistant.getLeBonCours().getListeProfs().indexOf(maFenetre.leprof)).setNiveau(niveau);
+		} catch (RemoteException e2) {
+			e2.printStackTrace();
+		}
+		try {
+			maFenetre.LeBonCoursDistant.getLeBonCours().getListeProfs().get(maFenetre.LeBonCoursDistant.getLeBonCours().getListeProfs().indexOf(maFenetre.leprof)).setCodePostal(cpp);
+		} catch (RemoteException e2) {
+			e2.printStackTrace();
+		}
+		try {
+			maFenetre.LeBonCoursDistant.getLeBonCours().getListeProfs().get(maFenetre.LeBonCoursDistant.getLeBonCours().getListeProfs().indexOf(maFenetre.leprof)).setPrix(prixx);
+		} catch (RemoteException e2) {
+			e2.printStackTrace();
+		}
+		try {
+			maFenetre.LeBonCoursDistant.getLeBonCours().getListeProfs().get(maFenetre.LeBonCoursDistant.getLeBonCours().getListeProfs().indexOf(maFenetre.leprof)).setVoiture(vehicule);
+		} catch (RemoteException e2) {
+			e2.printStackTrace();
+		}
+		
 
 		
 		//récupération des matieres dispensées par le prof
@@ -231,12 +282,31 @@ class ControleSuivantModifInfosProf implements ActionListener {
 		litt = maFenetre.bout_litt.isSelected();
 		eco = maFenetre.bout_eco.isSelected();
 		
-		// /!\A FAIRE /!\
-		// IL FAUT AJOUTER LE PROF AUX ARRAYLIST DES MATIERES OU C'EST TRUE. (se servir de ce qui a été fait dans fenetre inscription prof
-		// /!\A FAIRE /!\
+		try {
+			if (bio) {
+				maFenetre.LeBonCoursDistant.getLeBonCours().ajouterProf(maFenetre.LeBonCoursDistant.getLeBonCours().bio, maFenetre.leprof);
+				}
+			if (math) {
+				maFenetre.LeBonCoursDistant.getLeBonCours().ajouterProf(maFenetre.LeBonCoursDistant.getLeBonCours().maths, maFenetre.leprof);
+			}
+			if (phy) {
+				maFenetre.LeBonCoursDistant.getLeBonCours().ajouterProf(maFenetre.LeBonCoursDistant.getLeBonCours().phy, maFenetre.leprof);
+			}
+			if (lang) {
+				maFenetre.LeBonCoursDistant.getLeBonCours().ajouterProf(maFenetre.LeBonCoursDistant.getLeBonCours().langues, maFenetre.leprof);
+			}
+			if (litt) {
+				maFenetre.LeBonCoursDistant.getLeBonCours().ajouterProf(maFenetre.LeBonCoursDistant.getLeBonCours().litt, maFenetre.leprof);
+			}
+			if (eco) {
+				maFenetre.LeBonCoursDistant.getLeBonCours().ajouterProf(maFenetre.LeBonCoursDistant.getLeBonCours().eco, maFenetre.leprof);
+			}
+			} catch (RemoteException | DejaEnregistreeProf e1) {
+				e1.printStackTrace();
+			}
 		
 		maFenetre.setVisible(false);
-		FenetreMenuProf newFenetre = new FenetreMenuProf();
+		FenetreMenuProf newFenetre = new FenetreMenuProf(maFenetre.LeBonCoursDistant,maFenetre.leprof);
 		newFenetre.setVisible(true);
 	}
 	

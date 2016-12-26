@@ -40,19 +40,20 @@ public class FenetreRechercheProf extends JFrame {
 
 	@SuppressWarnings("rawtypes")
 	protected JComboBox<String> matiere_choix, jour_choix, heure_choix;
-	protected JButton suivant;
+	protected JButton chercher, retour;
 		
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public FenetreRechercheProf(RMIServeur s, Eleve el) { // Garder seulement le serveur et rÃ©cupÃ©rer leboncours
+	
+	public FenetreRechercheProf(RMIServeur s, Eleve el) { // Garder seulement le serveur et récupérer leboncours
 		super("Recherche d'un prof");
 		LeBonCoursDistant = s;
 		leleve = el;
 			
-		//programme se termine quand fenetre fermï¿½e
+		//programme se termine quand fenetre fermée
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		//creation du panel avec toutes les questions
-		JPanel panel= new JPanel(new GridLayout(5,2,0,5));
+		JPanel panel= new JPanel(new GridLayout(5,2,10,5));
 		panel.add(new Canvas());
 		panel.add(new Canvas());
 		
@@ -95,11 +96,12 @@ public class FenetreRechercheProf extends JFrame {
 		panel.add(heure);
 		panel.add(heure_choix);
 		
-		suivant = new JButton("SUIVANT");
-		panel.add(new Canvas());
-		panel.add(suivant); 
+		chercher = new JButton("CHERCHER");
+		retour = new JButton("RETOUR");
+		panel.add(retour);
+		panel.add(chercher); 
 		
-		//crï¿½ation du panel nord, avec nom du site
+		//création du panel nord, avec nom du site
 		JPanel haut = new JPanel();
 		haut.setLayout(new BorderLayout());
 				
@@ -119,21 +121,23 @@ public class FenetreRechercheProf extends JFrame {
 		mainPanel.setBorder(new EmptyBorder(10,10,10,10));
 				
 		this.pack();
-		suivant.addActionListener(new ControleRecherche(this));
-			}
+		chercher.addActionListener(new ControleRecherche(this));
+		retour.addActionListener(new ControleRetourMenu(this));
+		}
 	
-	public static void main(String[] args) throws RemoteException, DejaEnregistreeProf { // ProblÃ¨me, je ne sais pas quoi mettre dans le main...
+	public static void main(String[] args) throws RemoteException, DejaEnregistreeProf { // Problème, je ne sais pas quoi mettre dans le main...
 		RMIServeurImpl s = new RMIServeurImpl();
-		Eleve el = new Eleve("Lambert", "Zoe", "F",21, -2, 76000);
-		int[][] dispo = new int[7][11];
-		for (int i=0;i<7;i++) {
-			for (int j=0;j<11;j++) dispo[i][j]=1;
+		ArrayList<ReservationEleve> resael = new ArrayList<ReservationEleve>();
+		Eleve el = new Eleve("Lambert", "Zoe", "Femme",21, -2, 76000,resael);
+		int[][] dispo = new int[11][7];
+		for (int i=0;i<11;i++) {
+			for (int j=0;j<7;j++) dispo[i][j]=1;
 		}
 		ArrayList<ReservationProf> resa = new ArrayList<ReservationProf>();
 		ArrayList<ReservationProf> demandesResa = new ArrayList<ReservationProf>();
 		EmploiDuTemps edt = new EmploiDuTemps(dispo,resa,demandesResa);
-		Prof leprof2 = new Prof("Wade", "Barth", "M", 22, 4, 76000, 25, true, edt);
-		Prof leprof = new Prof("Guilloteau","Claire","F", 21, 4, 76000, 20, true, edt);
+		Prof leprof2 = new Prof("Wade", "Barth", "Homme", 22, 4, 76000, 25, true, edt);
+		Prof leprof = new Prof("Guilloteau","Claire","Femme", 21, 4, 76000, 20, true, edt);
 		s.getLeBonCours().ajouterProf(s.getLeBonCours().getBio(), leprof);
 		s.getLeBonCours().ajouterProf(s.getLeBonCours().getBio(), leprof2);
 		FenetreRechercheProf maFenetre = new FenetreRechercheProf(s,el); 
@@ -156,13 +160,13 @@ class ControleRecherche implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e){
 		
-		// recuperation des caracteristiques du cours recherchÃ© 
+		// recuperation des caracteristiques du cours recherché 
 		matiere = (String) maFenetre.matiere_choix.getSelectedItem();
 		jour = jourEntier ((String) maFenetre.jour_choix.getSelectedItem());
 		heure = heureEntier ((String) maFenetre.heure_choix.getSelectedItem());
 		ArrayList<Prof> m = null;
 		
-		// On rÃ©cupÃ¨re la liste de profs correspondant Ã  la matiÃ¨re recherchÃ©e
+		// On récupère la liste de profs correspondant à la matière recherchée
 		if (matiere.equals("Bio")) {
 			try {
 				m = maFenetre.LeBonCoursDistant.getLeBonCours().getBio();
@@ -220,10 +224,10 @@ class ControleRecherche implements ActionListener {
 			e1.printStackTrace();
 		}
     	
-		// Si la liste des profs dispos est vide, on demande Ã  l'eleve de refaire une recherche
+		// Si la liste des profs dispos est vide, on demande à l'eleve de refaire une recherche
 		if (resultat.size()==0) {
 			jop = new JOptionPane();
-			jop.showMessageDialog(null, "Il n'y a pas de professeur disponible, veuillez rÃ©-effectuer votre recherche en changeant le jour et l'heure", "Attention", JOptionPane.WARNING_MESSAGE);
+			jop.showMessageDialog(null, "Il n'y a pas de professeur disponible, veuillez ré-effectuer votre recherche en changeant le jour ou l'heure.", "Attention", JOptionPane.WARNING_MESSAGE);
 			FenetreRechercheProf fenetreRecherche2 = new FenetreRechercheProf(maFenetre.LeBonCoursDistant, maFenetre.leleve);
 			fenetreRecherche2.setVisible(true);
 			fenetreRecherche2.pack();
@@ -231,7 +235,7 @@ class ControleRecherche implements ActionListener {
     	}
     	else {
     		maFenetre.setVisible(false);
-    		FenetreResultatRecherche fenetreResultat = new FenetreResultatRecherche (maFenetre.LeBonCoursDistant, jour, heure, resultat, maFenetre.leleve);
+    		FenetreResultatRecherche fenetreResultat = new FenetreResultatRecherche(maFenetre.LeBonCoursDistant, jour, heure, resultat, maFenetre.leleve);
         	fenetreResultat.setVisible(true);
         	fenetreResultat.pack();
     	}
@@ -312,13 +316,20 @@ class ControleRecherche implements ActionListener {
 			return heure;
 		}
 }
+
+class ControleRetourMenu implements ActionListener {
+
+	FenetreRechercheProf maFenetre;
 	
 
-		
+	public ControleRetourMenu(FenetreRechercheProf uneFenetre){
+		maFenetre = uneFenetre;
+	}
 
-
-
-
-
-
-
+	@Override
+	public void actionPerformed(ActionEvent e){
+		maFenetre.setVisible(false);
+		FenetreMenuEleve newFenetre = new FenetreMenuEleve(maFenetre.LeBonCoursDistant,maFenetre.leleve);
+		newFenetre.setVisible(true);
+	}
+}

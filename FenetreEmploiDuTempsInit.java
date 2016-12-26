@@ -193,8 +193,13 @@ class ControleSuivantEdtInit implements ActionListener {
 			e1.printStackTrace();
 		}
 		maFenetre.setVisible(false);
-		FenetreMenuProf newFenetre = new FenetreMenuProf(); //maFenetre.LeBonCoursDistant.getLeBonCours().getListeProfs().get(maFenetre.indice_prof)
-		newFenetre.setVisible(true);		
+		FenetreMenuProf newFenetre;
+		try {
+			newFenetre = new FenetreMenuProf(maFenetre.LeBonCoursDistant,maFenetre.LeBonCoursDistant.getLeBonCours().getListeProfs().get(maFenetre.indice_prof));
+			newFenetre.setVisible(true);	
+		} catch (RemoteException e1) {
+			e1.printStackTrace();
+		}
 	}
 	
 	//fonction qui associe la case dispo cochée à l'integer correspondant

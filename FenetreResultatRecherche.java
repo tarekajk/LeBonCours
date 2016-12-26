@@ -16,10 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.MatteBorder;
+
 
 import insa.projet.leboncours.rmi.*;
 import insa.projet.leboncours.ihm.TableModel;
@@ -48,30 +45,31 @@ public class FenetreResultatRecherche extends JFrame{
 		super("Resultat de la recherche");
 		LeBonCoursDistant = leboncours;
 		
-		//programme se termine quand fenetre fermï¿½e
+		//programme se termine quand fenetre fermée
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		//
 		JPanel panel = (JPanel)this.getContentPane();
+		panel.setLayout(new BorderLayout(15,15));
 		
-		panel.setLayout(new BorderLayout(10,10));
-		panel.setBorder(new MatteBorder(3,3,3,3,Color.WHITE));
-		panel.setBackground(Color.WHITE);
+		//création du panel nord, avec nom du site
+		JPanel haut = new JPanel();
+		haut.setLayout(new BorderLayout());
 		
-		JPanel leboncoursPanel = new JPanel(new BorderLayout(5,5));
+		JLabel titre = new JLabel("leboncours.fr",new ImageIcon("imagecours.png"),SwingConstants.CENTER);
+		titre.setFont(POLICE_TITRE);
+		haut.add(titre, BorderLayout.NORTH);
+		JLabel saut = new JLabel("              ");
+		haut.add(saut, BorderLayout.CENTER);
+		JLabel phrasee = new JLabel("Voici la liste des professeurs qui correspondent à vos critères:");
+		haut.add(phrasee, BorderLayout.SOUTH);		
 		
-		panel.add(leboncoursPanel, BorderLayout.CENTER);
-		leboncoursPanel.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED),new EmptyBorder(5,5,5,5)));
-		JPanel profPanel = new JPanel(new BorderLayout(5,5));
-		leboncoursPanel.add(profPanel,BorderLayout.CENTER);
-		leboncoursPanel.setBackground(Color.WHITE);
-
-		/** Construction du panel avec la liste des profs disponibles */
-		tableDesProfsDispos = new JTable(new TableModel(resultat));  // resultat = ArrayList de voitures pour nous listeProfDispo
-		tableDesProfsDispos.setPreferredScrollableViewportSize(new Dimension(200,200));
+		// Construction du panel avec la liste des profs disponibles 
+		tableDesProfsDispos = new JTable(new TableModel(resultat));  // resultat = ArrayList de listeProfDispo
+		tableDesProfsDispos.setPreferredScrollableViewportSize(new Dimension(600,600));
 		panel.add(new JScrollPane(tableDesProfsDispos), BorderLayout.CENTER);
-		panel.setBackground(Color.WHITE);
-		tableDesProfsDispos.setBackground(Color.WHITE); // JUSQU'A LA
+		panel.add(haut, BorderLayout.NORTH);
+		tableDesProfsDispos.setBackground(Color.WHITE);
 		
 		
 		tableDesProfsDispos.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -81,13 +79,13 @@ public class FenetreResultatRecherche extends JFrame{
 	        	
 	        	String nom = (String) tableDesProfsDispos.getValueAt(tableDesProfsDispos.getSelectedRow(), 0);
 	        	String prenom = (String) tableDesProfsDispos.getValueAt(tableDesProfsDispos.getSelectedRow(), 1);
-	        	int niveau = Integer.parseInt(tableDesProfsDispos.getValueAt(tableDesProfsDispos.getSelectedRow(), 2).toString());
-	        	Long cp = Long.parseLong(tableDesProfsDispos.getValueAt(tableDesProfsDispos.getSelectedRow(), 3).toString());
-	        	Boolean voiture = Boolean.parseBoolean(tableDesProfsDispos.getValueAt(tableDesProfsDispos.getSelectedRow(), 4).toString());
-	        	Float prix = Float.parseFloat(tableDesProfsDispos.getValueAt(tableDesProfsDispos.getSelectedRow(), 5).toString());
+	        	int niveau = niveauProfToListener(tableDesProfsDispos.getValueAt(tableDesProfsDispos.getSelectedRow(), 3).toString());
+	        	Long cp = Long.parseLong(tableDesProfsDispos.getValueAt(tableDesProfsDispos.getSelectedRow(), 4).toString());
+	        	Boolean voiture = IsVoitureToListener(tableDesProfsDispos.getValueAt(tableDesProfsDispos.getSelectedRow(), 5).toString());
+	        	Float prix = Float.parseFloat(tableDesProfsDispos.getValueAt(tableDesProfsDispos.getSelectedRow(), 6).toString());
 	        	
 	        	Prof leprof = new Prof(); 
-	        		
+	        	
 	        	try {
 					while(i < LeBonCoursDistant.getLeBonCours().getListeProfs().size() ) //recuperer Prof Dispo 
 					{
@@ -107,20 +105,62 @@ public class FenetreResultatRecherche extends JFrame{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-	        	
 	        	ReservationEleve resa = new ReservationEleve(jour, heure, leprof); 
 	        	FenetreReservationEleve fenResa = new FenetreReservationEleve(LeBonCoursDistant, resa, el); 
 	        	fenResa.setVisible(true);
 	        	fenResa.pack();
-	        }});
-		
+	        	dispose();
+	        }
+		});
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 	}
+	
 	public void refresh() {
 		((TableModel)tableDesProfsDispos.getModel()).fireTableDataChanged();
 	
 	}
 	
 
+	public int niveauProfToListener(String niv){
+		int niveau = 0;
+		
+		switch (niv)
+		{
+		  case "BAC":
+		    niveau = 0;
+		    break;
+		  case "BAC +1":
+			niveau = 1;
+		    break;
+		  case "BAC +2":
+			niveau = 2;
+		    break;
+		  case "BAC +3":
+		    niveau = 3;
+		    break;
+		  case "BAC +4":
+			niveau = 4;
+		    break;
+		  case "BAC +5":
+			niveau = 5;
+		    break;
+		  case "BAC +6":
+			niveau = 6;
+		    break;
+		  case "BAC +7":
+			niveau = 7;
+		    break;  
+		}
+		return niveau;
+	}
+	
+	public boolean IsVoitureToListener(String vehic){
+		boolean vehicule= true;
+		if (vehic == "Oui"){
+			 vehicule= true;}
+		if (vehic == "Non"){
+			 vehicule= false;}
+		return vehicule;
+	}
+	
 }
-

@@ -11,7 +11,8 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.lang.Object;
-import java.rmi.RemoteException;;
+import java.rmi.RemoteException;
+import java.util.ArrayList;;
 
 
 public class FenetreModifInfosEleve extends JFrame {
@@ -37,10 +38,12 @@ public class FenetreModifInfosEleve extends JFrame {
 		LeBonCoursDistant = r;
 		leleve = e;
 		
-		// /!\ A FAIRE /!\
-		//ICI IL FAUT SUPPRIMER L'ELEVE DES ARRAYLIST OU IL EST
-		//RAPPEL : on va le réajouter dans l'arraylist au moment de l'action listener
-		// /!\ A FAIRE /!\
+		// Suppression de l'eleve dans l'arraylist ListeEleve
+		try {
+			LeBonCoursDistant.getLeBonCours().getListeEleve().remove(leleve);
+		} catch (RemoteException e1) {
+			e1.printStackTrace();
+		}
 		
 		//programme se termine quand fenetre fermée
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -118,7 +121,8 @@ public class FenetreModifInfosEleve extends JFrame {
 
 
 	public static void main(String[] args) throws RemoteException {
-		Eleve leleve = new Eleve("Guilloteau","Claire","Femme", 21, -6, 76000);
+		ArrayList<ReservationEleve> resa = new ArrayList<ReservationEleve>();
+		Eleve leleve = new Eleve("Guilloteau","Claire","Femme", 21, -6, 76000,resa);
 		RMIServeurImpl r = new RMIServeurImpl();
 		FenetreModifInfosEleve maFenetre = new FenetreModifInfosEleve(r,leleve);
 		maFenetre.setVisible(true);
@@ -156,14 +160,17 @@ class ControleSuivantModifInfosEleve implements ActionListener {
 		// récupération des autres infos pour ensuite les associer au profil créé
 		sexe = (String) maFenetre.sexe_choix.getSelectedItem();
 		niveau = niveauEleve((String) maFenetre.niveau_choix.getSelectedItem());
-		Eleve eleve = new Eleve(nom, prenom, sexe, agee, niveau, cpp);
+		ArrayList<ReservationEleve> resa = new ArrayList<ReservationEleve>();
+		Eleve eleve = new Eleve(nom, prenom, sexe, agee, niveau, cpp,resa);
 		
-		// /!\ A FAIRE /!\
-		//ICI IL FAUT AJOUTER L'ELEVE A L'ARRAYLIST DES ELEVES
-		// /!\ A FAIRE /!\
+		try {
+			maFenetre.LeBonCoursDistant.getLeBonCours().ajouterEleve(eleve);
+		} catch (RemoteException | DejaEnregistreeEleve e1) {
+			e1.printStackTrace();
+		}
 		
 		maFenetre.setVisible(false);
-		FenetreMenuEleve newFenetre = new FenetreMenuEleve();
+		FenetreMenuEleve newFenetre = new FenetreMenuEleve(maFenetre.LeBonCoursDistant,maFenetre.leleve);
 		newFenetre.setVisible(true);
 	}
 	

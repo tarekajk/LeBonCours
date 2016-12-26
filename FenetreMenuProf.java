@@ -1,14 +1,22 @@
 package insa.projet.leboncours.ihm;
 
 import insa.projet.leboncours.*;
+import insa.projet.leboncours.rmi.RMIServeur;
+import insa.projet.leboncours.rmi.RMIServeurImpl;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 public class FenetreMenuProf extends JFrame {
+	
+	RMIServeur LeBonCoursDistant;
+	Prof prof;
 
 	/**
 	 * Une police pour le titre du site */
@@ -22,14 +30,16 @@ public class FenetreMenuProf extends JFrame {
 	protected JButton suppr;
 	protected JButton modif_infos;
 	
-	public FenetreMenuProf() {
+	public FenetreMenuProf(RMIServeur r, Prof p) {
 		super("Le bon cours/Menu Professeur");
+		LeBonCoursDistant =r;
+		prof =p;
 		
 		//programme se termine quand fenetre fermée
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		
-		//création du panel avec toutes les questions
+		//création du panel avec tous les choix
 		JPanel panel= new JPanel(new GridLayout(8,0,0,15));
 		voir = new JButton("Voir mes cours");
 		rep = new JButton("Mes demandes de réservation");
@@ -69,6 +79,9 @@ public class FenetreMenuProf extends JFrame {
 		mainPanel.setBorder(new EmptyBorder(10,10,10,10));
 		
 		this.pack();
+		voir.addActionListener(new ControleVoirProf(this));
+		rep.addActionListener(new ControleRepondreProf(this));
+		annul.addActionListener(new ControleAnnuleProf(this));
 		modif_edt.addActionListener(new ControleModifEdt(this));
 		modif_infos.addActionListener(new ControleModifInfos(this));
 		suppr.addActionListener(new ControleSupprimer(this));
@@ -77,11 +90,78 @@ public class FenetreMenuProf extends JFrame {
 	
 	
 	
-	public static void main(String[] args) {
-		FenetreMenuProf maFenetre = new FenetreMenuProf();
+	public static void main(String[] args) throws RemoteException {
+		RMIServeurImpl r = new RMIServeurImpl();
+		int[][] dispo = new int[11][7];
+		for (int i=0;i<11;i++) {
+			for (int j=0;j<7;j++) dispo[i][j]=1;
+		}
+		ArrayList<ReservationEleve> cours = new ArrayList<ReservationEleve>();
+		Eleve leleve = new Eleve("Lambert","Zoe","Femme", 16, -4, 76000, cours);
+		r.getLeBonCours().getListeEleve().add(leleve);
+		ArrayList<ReservationProf> resa = new ArrayList<ReservationProf>();
+		ReservationProf uneresa = new ReservationProf(1,10,leleve);
+		resa.add(uneresa);
+		ArrayList<ReservationProf> demandes = new ArrayList<ReservationProf>();
+		demandes.add(uneresa);
+		EmploiDuTemps edt = new EmploiDuTemps(dispo,resa,demandes);
+		Prof leprof = new Prof("Guilloteau","Claire","Femme", 21, 4, 76000, 20, true, edt);
+		r.getLeBonCours().getListeProfs().add(leprof);
+		FenetreMenuProf maFenetre = new FenetreMenuProf(r,leprof);
 		maFenetre.setVisible(true);
 	}
 	
+}
+
+class ControleVoirProf implements ActionListener {
+
+	FenetreMenuProf maFenetre;
+	
+	public ControleVoirProf(FenetreMenuProf uneFenetre){
+		maFenetre = uneFenetre;
+	}
+	
+	
+	@Override
+	public void actionPerformed(ActionEvent e){
+		maFenetre.setVisible(false);
+		FenetreVoirCoursProf newFenetre = new FenetreVoirCoursProf(maFenetre.LeBonCoursDistant,maFenetre.prof);
+		newFenetre.setVisible(true);
+	}	
+}
+
+class ControleRepondreProf implements ActionListener {
+
+FenetreMenuProf maFenetre;
+	
+	public ControleRepondreProf(FenetreMenuProf uneFenetre){
+		maFenetre = uneFenetre;
+	}
+	
+	
+	@Override
+	public void actionPerformed(ActionEvent e){
+		maFenetre.setVisible(false);
+		FenetreDemandesReservation newFenetre = new FenetreDemandesReservation(maFenetre.LeBonCoursDistant,maFenetre.prof);
+		newFenetre.setVisible(true);
+	}	
+}
+
+class ControleAnnuleProf implements ActionListener {
+
+	FenetreMenuProf maFenetre;
+	
+	public ControleAnnuleProf(FenetreMenuProf uneFenetre){
+		maFenetre = uneFenetre;
+	}
+	
+	
+	@Override
+	public void actionPerformed(ActionEvent e){
+		maFenetre.setVisible(false);
+		FenetreAnnuleCoursProf newFenetre = new FenetreAnnuleCoursProf(maFenetre.LeBonCoursDistant,maFenetre.prof);
+		newFenetre.setVisible(true);
+	}	
 }
 
 class ControleModifEdt implements ActionListener {
@@ -96,7 +176,7 @@ class ControleModifEdt implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e){
 		maFenetre.setVisible(false);
-		FenetreEmploiDuTempsModif newFenetre = new FenetreEmploiDuTempsModif();   //rmiserveur et prof a mettre en entrée
+		FenetreEmploiDuTempsModif newFenetre = new FenetreEmploiDuTempsModif(maFenetre.LeBonCoursDistant,maFenetre.prof);
 		newFenetre.setVisible(true);			
 	}	
 	
@@ -114,8 +194,14 @@ class ControleModifInfos implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e){
 		maFenetre.setVisible(false);
-		FenetreModifInfosProf newFenetre = new FenetreModifInfosProf();   //rmiserveur et prof a mettre en entrée
-		newFenetre.setVisible(true);			
+		FenetreModifInfosProf newFenetre;
+		try {
+			newFenetre = new FenetreModifInfosProf(maFenetre.LeBonCoursDistant,maFenetre.prof);
+			newFenetre.setVisible(true);
+		} catch (RemoteException e1) {
+			e1.printStackTrace();
+		}
+					
 	}	
 	
 }
@@ -131,12 +217,14 @@ class ControleSupprimer implements ActionListener {
 	
 	@Override
 	public void actionPerformed(ActionEvent e){
-		// /!\ A FAIRE /!\
-		//SUPPRIMER LE COMPTE DE L'ELEVE
-		// /!\ A FAIRE /!\
+		try {
+			maFenetre.LeBonCoursDistant.getLeBonCours().supprimerProf(maFenetre.prof);
+		} catch (RemoteException e1) {
+			e1.printStackTrace();
+		}
 		maFenetre.setVisible(false);
-		FenetrePrincipale newFenetre = new FenetrePrincipale();   //mettre serveur entrée
-		newFenetre.setVisible(true);						//ON REVIENT AU MENU PRINCIPAL APRES SUPPRESSION COMPTE??
+		FenetrePrincipale newFenetre = new FenetrePrincipale(maFenetre.LeBonCoursDistant); 
+		newFenetre.setVisible(true);				//ON REVIENT AU MENU PRINCIPAL APRES SUPPRESSION COMPTE?? OUI
 	}	
 	
 }

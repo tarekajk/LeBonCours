@@ -31,9 +31,9 @@ public class FenetrePrincipale extends JFrame{
 	protected JButton eleve;
 	protected JButton connecter;
 	
-	RMIServeurImpl LeBonCoursDistant;
+	RMIServeur LeBonCoursDistant;
 	
-	public FenetrePrincipale(RMIServeurImpl r) {
+	public FenetrePrincipale(RMIServeur r) {
 		super("Le Bon Cours/Accueil");
 		LeBonCoursDistant = r;
 		//programme se termine quand fenetre fermée
@@ -99,8 +99,8 @@ public class FenetrePrincipale extends JFrame{
 	
 	public static void main(String[] args) throws RemoteException, DejaEnregistreeEleve {
 		RMIServeurImpl r = new RMIServeurImpl();
-		Prof prof = new Prof("AJK","Tarek","M",21,4,76100,20,true,null);
-		Eleve eleve = new Eleve("Wade","Barth","M",18,0,76000);
+		Prof prof = new Prof("AJK","Tarek","Homme",21,4,76100,20,true,null);
+		Eleve eleve = new Eleve("Wade","Barth","Homme",18,0,76000,null);
 		r.getLeBonCours().getListeProfs().add(prof);
 		r.getLeBonCours().ajouterEleve(eleve);
 		FenetrePrincipale maFenetre = new FenetrePrincipale(r);
@@ -163,12 +163,12 @@ class ControleConnec implements ActionListener {
 		try {
 			if (maFenetre.LeBonCoursDistant.getLeBonCours().ConnexionEleve(nom, prenom)!=null){
 				maFenetre.setVisible(false);
-				FenetreMenuEleve newFenetre = new FenetreMenuEleve();//maFenetre.LeBonCoursDistant,maFenetre.LeBonCoursDistant.getLeBonCours().ConnexionEleve(nom, prenom)
+				FenetreMenuEleve newFenetre = new FenetreMenuEleve(maFenetre.LeBonCoursDistant,maFenetre.LeBonCoursDistant.getLeBonCours().ConnexionEleve(nom, prenom));//maFenetre.LeBonCoursDistant,maFenetre.LeBonCoursDistant.getLeBonCours().ConnexionEleve(nom, prenom)
 				newFenetre.setVisible(true);
 			}
 			else if(maFenetre.LeBonCoursDistant.getLeBonCours().ConnexionProf(nom, prenom)!=null) {
 				maFenetre.setVisible(false);
-				FenetreMenuProf newFenetre = new FenetreMenuProf(); //maFenetre.LeBonCoursDistant,maFenetre.LeBonCoursDistant.getLeBonCours().ConnexionProf(nom, prenom)
+				FenetreMenuProf newFenetre = new FenetreMenuProf(maFenetre.LeBonCoursDistant,maFenetre.LeBonCoursDistant.getLeBonCours().ConnexionProf(nom, prenom));
 				newFenetre.setVisible(true);
 			}
 			else {

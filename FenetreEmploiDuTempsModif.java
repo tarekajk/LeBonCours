@@ -245,7 +245,7 @@ class ControleSuivantEdtModif implements ActionListener {
 		}
 		
 		maFenetre.setVisible(false);
-		FenetreMenuProf newFenetre = new FenetreMenuProf();
+		FenetreMenuProf newFenetre = new FenetreMenuProf(maFenetre.LeBonCoursDistant,maFenetre.prof);
 		newFenetre.setVisible(true);		
 	}
 	

@@ -1,12 +1,23 @@
 package insa.projet.leboncours.ihm;
 
 import insa.projet.leboncours.*;
+import insa.projet.leboncours.rmi.RMIServeur;
+import insa.projet.leboncours.rmi.RMIServeurImpl;
+
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 public class FenetreMenuEleve extends JFrame {
 
+	RMIServeur LeBonCoursDistant;
+	Eleve eleve;
+	
 	/**
 	 * Une police pour le titre du site */
 	private final static Font POLICE_TITRE = new Font("Berlin Sans FB",Font.PLAIN,30);
@@ -18,8 +29,10 @@ public class FenetreMenuEleve extends JFrame {
 	protected JButton annul;
 	protected JButton modif_infos;
 	
-	public FenetreMenuEleve() {
+	public FenetreMenuEleve(RMIServeur r, Eleve e) {
 		super("Le bon cours/Menu Eleve");
+		LeBonCoursDistant =r;
+		eleve =e;
 		
 		//programme se termine quand fenetre fermée
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -64,13 +77,136 @@ public class FenetreMenuEleve extends JFrame {
 		mainPanel.setBorder(new EmptyBorder(10,10,10,10));
 		
 		this.pack();
+		rech.addActionListener(new ControleRechercheEleve(this));
+		voir.addActionListener(new ControleVoirEleve(this));
+		annul.addActionListener(new ControleAnnuleEleve(this));
+		rech.addActionListener(new ControleRechercheEleve(this));
+		modif_infos.addActionListener(new ControleModifInfosEleve(this));
+		suppr.addActionListener(new ControleSupprimerEleve(this));
+		quit.addActionListener(new ControleQuitterEleve(this));
 	}
 	
 	
 	
-	public static void main(String[] args) {
-		FenetreMenuEleve maFenetre = new FenetreMenuEleve();
+	public static void main(String[] args) throws RemoteException {
+		RMIServeurImpl r = new RMIServeurImpl();
+		Prof leprof = new Prof("Ajk","Tarek","Homme", 21, 4, 76000, 25, true, null);
+		ArrayList<ReservationEleve> resael = new ArrayList<ReservationEleve>();
+		ReservationEleve uneresa = new ReservationEleve(1,10,leprof);
+		resael.add(uneresa);
+		Eleve leleve = new Eleve("Guilloteau","Claire","Femme", 16, -4, 76000, resael);
+		FenetreMenuEleve maFenetre = new FenetreMenuEleve(r, leleve);
 		maFenetre.setVisible(true);
 	}
 	
+}
+
+class ControleRechercheEleve implements ActionListener {
+
+	FenetreMenuEleve maFenetre;
+	
+	public ControleRechercheEleve(FenetreMenuEleve uneFenetre){
+		maFenetre = uneFenetre;
+	}
+	
+	
+	@Override
+	public void actionPerformed(ActionEvent e){
+		maFenetre.setVisible(false);
+		FenetreRechercheProf newFenetre;
+		newFenetre = new FenetreRechercheProf(maFenetre.LeBonCoursDistant,maFenetre.eleve);
+		newFenetre.setVisible(true);				
+	}	
+}
+
+class ControleVoirEleve implements ActionListener {
+
+	FenetreMenuEleve maFenetre;
+	
+	public ControleVoirEleve(FenetreMenuEleve uneFenetre){
+		maFenetre = uneFenetre;
+	}
+	
+	
+	@Override
+	public void actionPerformed(ActionEvent e){
+		maFenetre.setVisible(false);
+		FenetreVoirCoursEleve newFenetre;
+		newFenetre = new FenetreVoirCoursEleve(maFenetre.LeBonCoursDistant,maFenetre.eleve);
+		newFenetre.setVisible(true);
+	}	
+}
+
+class ControleAnnuleEleve implements ActionListener {
+
+	FenetreMenuEleve maFenetre;
+	
+	public ControleAnnuleEleve(FenetreMenuEleve uneFenetre){
+		maFenetre = uneFenetre;
+	}
+	
+	
+	@Override
+	public void actionPerformed(ActionEvent e){
+		maFenetre.setVisible(false);
+		FenetreAnnuleCoursEleve newFenetre;
+		newFenetre = new FenetreAnnuleCoursEleve(maFenetre.LeBonCoursDistant,maFenetre.eleve);
+		newFenetre.setVisible(true);
+	}	
+}
+
+class ControleModifInfosEleve implements ActionListener {
+
+	FenetreMenuEleve maFenetre;
+	
+	public ControleModifInfosEleve(FenetreMenuEleve uneFenetre){
+		maFenetre = uneFenetre;
+	}
+	
+	
+	@Override
+	public void actionPerformed(ActionEvent e){
+		maFenetre.setVisible(false);
+		FenetreModifInfosEleve newFenetre;
+		newFenetre = new FenetreModifInfosEleve(maFenetre.LeBonCoursDistant,maFenetre.eleve);
+		newFenetre.setVisible(true);				
+	}	
+}
+
+class ControleSupprimerEleve implements ActionListener {
+
+	FenetreMenuEleve maFenetre;
+	
+	public ControleSupprimerEleve(FenetreMenuEleve uneFenetre){
+		maFenetre = uneFenetre;
+	}
+
+
+@Override
+	public void actionPerformed(ActionEvent e){
+		try {
+			maFenetre.LeBonCoursDistant.getLeBonCours().supprimerEleve(maFenetre.eleve);
+		} catch (RemoteException e1) {
+			e1.printStackTrace();
+		}
+		maFenetre.setVisible(false);
+		FenetrePrincipale newFenetre = new FenetrePrincipale(maFenetre.LeBonCoursDistant); 
+		newFenetre.setVisible(true);				//ON REVIENT AU MENU PRINCIPAL APRES SUPPRESSION COMPTE?? OUI
+	}	
+}
+
+class ControleQuitterEleve implements ActionListener {
+
+	FenetreMenuEleve maFenetre;
+
+	public ControleQuitterEleve(FenetreMenuEleve uneFenetre){
+	maFenetre = uneFenetre;
+	}
+
+
+	@Override
+	public void actionPerformed(ActionEvent e){
+	System.exit(0);			
+	}	
+
 }

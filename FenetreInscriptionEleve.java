@@ -11,7 +11,8 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.lang.Object;
-import java.rmi.RemoteException;;
+import java.rmi.RemoteException;
+import java.util.ArrayList;;
 
 
 public class FenetreInscriptionEleve extends JFrame {
@@ -147,7 +148,8 @@ class ControleSuivant implements ActionListener {
 		// récupération des autres infos pour ensuite les associer au profil créé
 		sexe = (String) maFenetre.sexe_choix.getSelectedItem();
 		niveau = niveauEleve((String) maFenetre.niveau_choix.getSelectedItem());
-		Eleve eleve = new Eleve(nom, prenom, sexe, agee, niveau, cpp);
+		ArrayList<ReservationEleve> resa = new ArrayList<ReservationEleve>();
+		Eleve eleve = new Eleve(nom, prenom, sexe, agee, niveau, cpp,resa);
 		
 		try {
 			maFenetre.LeBonCoursDistant.getLeBonCours().ajouterEleve(eleve);
@@ -158,7 +160,7 @@ class ControleSuivant implements ActionListener {
 		}
 		
 		maFenetre.setVisible(false);
-		FenetreMenuEleve newFenetre = new FenetreMenuEleve(); // maFenetre.LeBonCoursDistant,eleve
+		FenetreMenuEleve newFenetre = new FenetreMenuEleve(maFenetre.LeBonCoursDistant, eleve); // maFenetre.LeBonCoursDistant,eleve
 		newFenetre.setVisible(true);
 		}
 	}
